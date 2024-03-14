@@ -1,46 +1,55 @@
-name: .NET Mono Repo PR Build and Test
+name: Build and Test Affected Applications
 
 on:
   pull_request:
-    branches: [ main ]
+    types:
+      - opened
+      - edited
+      - synchronize
+    paths:
+      - 'src/**'
 
 jobs:
-  find-changes:
-    runs-on: ubuntu-latest
-
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Find changed projects
-      id: set-matrix
-      run: |
-        # Logic to identify changed directories, update accordingly
-        # This example sets a JSON array with project paths that have changed
-        echo "::set-output name=matrix::$(git diff --name-only origin/main...${{ github.event.pull_request.head.sha }} | grep '.csproj$' | xargs -n 1 dirname | jq -R . | jq -s .)"
-
   build-and-test:
-    needs: find-changes
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        project: ${{fromJson(needs.find-changes.outputs.matrix)}}
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # Necessary to compare changes against the main branch
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: '8.0' # Specify your .NET version
+      - name: Install .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '8.0.101' # Specify your .NET version here
 
-    - name: Build Project
-      run: dotnet build ${{ matrix.project }} --configuration Release
+      - name: Detect Changed Files
+        id: files
+        uses: jitterbit/get-changed-files@v1
+        with:
+          format: 'space-delimited'
 
-    - name: Run Tests
-      run: dotnet test ${{ matrix.project }} --no-build --verbosity normal
+      - name: Determine Affected Applications
+        id: affected
+        run: |
+          CHANGED_FILES="${{ steps.files.outputs.all }}"
+          AFFECTED_APPS=""
+          for FILE in $CHANGED_FILES; do
+            if [[ "$FILE" == src/AppA/* ]]; then
+              AFFECTED_APPS+="AppA "
+            elif [[ "$FILE" == src/AppB/* ]]; then
+              AFFECTED_APPS+="AppB "
+            elif [[ "$FILE" == src/Core/* ]]; then
+              AFFECTED_APPS+="AppA AppB"
+            fi
+          done
+          echo "AFFECTED_APPS=${AFFECTED_APPS}" >> $GITHUB_ENV
+
+      - name: Build and Test Affected Applications
+        if: env.AFFECTED_APPS != ''
+        run: |
+          for APP in $AFFECTED_APPS; do
+            echo "Building and testing $APP"
+            # Replace with your actual build and test commands
+            dotnet build src/$APP
+            dotnet test src/$APP
+          done
