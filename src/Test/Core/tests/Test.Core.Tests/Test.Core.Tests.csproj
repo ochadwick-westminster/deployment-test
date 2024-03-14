@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Test.Core\Test.Core.csproj" />
+    <ProjectReference Include="..\..\Test.Core\Test.Core.csproj" />
   </ItemGroup>
 
 </Project>
