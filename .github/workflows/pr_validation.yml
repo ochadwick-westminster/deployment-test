@@ -50,6 +50,18 @@ jobs:
           for APP in $AFFECTED_APPS; do
             echo "Building and testing $APP"
             # Replace with your actual build and test commands
-            dotnet build src/Test/$APP
-            dotnet test src/Test/$APP
+            # dotnet build src/Test/$APP
+            # dotnet test src/Test/$APP
+            if [[ "$APP" == AppA ]]; then
+              dotnet build src/Test/AppA/Test.Api.App.A
+              dotnet test src/Test/AppA/tests/Test.Api.App.A.Tests
+            elif [[ "$APP" == AppB ]]; then
+              dotnet build src/Test/AppB/Test.Api.App.B
+              dotnet test src/Test/AppB/tests/Test.Api.App.B.Tests
+            elif [[ "$APP" == Core ]]; then
+              dotnet build src/Test/AppA/Test.Api.App.A
+              dotnet test src/Test/AppA/tests/Test.Api.App.A.Tests
+              dotnet build src/Test/AppB/Test.Api.App.B
+              dotnet test src/Test/AppB/tests/Test.Api.App.B.Tests
+            fi
           done
