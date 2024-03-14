@@ -34,11 +34,11 @@ jobs:
           CHANGED_FILES="${{ steps.files.outputs.all }}"
           AFFECTED_APPS=""
           for FILE in $CHANGED_FILES; do
-            if [[ "$FILE" == src/AppA/* ]]; then
+            if [[ "$FILE" == src/Test/AppA/* ]]; then
               AFFECTED_APPS+="AppA "
-            elif [[ "$FILE" == src/AppB/* ]]; then
+            elif [[ "$FILE" == src/Test/AppB/* ]]; then
               AFFECTED_APPS+="AppB "
-            elif [[ "$FILE" == src/Core/* ]]; then
+            elif [[ "$FILE" == src/Test/Core/* ]]; then
               AFFECTED_APPS+="AppA AppB"
             fi
           done
@@ -50,6 +50,6 @@ jobs:
           for APP in $AFFECTED_APPS; do
             echo "Building and testing $APP"
             # Replace with your actual build and test commands
-            dotnet build src/$APP
-            dotnet test src/$APP
+            dotnet build src/Test/$APP
+            dotnet test src/Test/$APP
           done
