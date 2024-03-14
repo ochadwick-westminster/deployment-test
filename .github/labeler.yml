@@ -1,0 +1,14 @@
+ci/cd:
+  - .github/**
+
+infrastructure:
+  - terraform/**
+
+appA:
+  - src/Test/AppA/*
+
+appB:
+  - src/Test/AppB/*
+
+core:
+  - src/Test/Core/*
