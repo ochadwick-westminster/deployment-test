@@ -14,7 +14,7 @@ public class APIAController : ControllerBase
     }
 
     [HttpGet(Name = "Add")]
-    public int Get(int x, int y)
+    public int Add(int x, int y)
     {
         return Core.Math.add(x, y);
     }

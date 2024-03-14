@@ -14,7 +14,7 @@ public class APIBController : ControllerBase
     }
 
     [HttpGet(Name = "Subtract")]
-    public int Get(int x, int y)
+    public int Subtract(int x, int y)
     {
         return Core.Math.subtract(x, y);
     }
