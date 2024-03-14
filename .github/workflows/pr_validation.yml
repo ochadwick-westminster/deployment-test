@@ -1,0 +1,46 @@
+name: .NET Mono Repo PR Build and Test
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  find-changes:
+    runs-on: ubuntu-latest
+
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Find changed projects
+      id: set-matrix
+      run: |
+        # Logic to identify changed directories, update accordingly
+        # This example sets a JSON array with project paths that have changed
+        echo "::set-output name=matrix::$(git diff --name-only origin/main...${{ github.event.pull_request.head.sha }} | grep '.csproj$' | xargs -n 1 dirname | jq -R . | jq -s .)"
+
+  build-and-test:
+    needs: find-changes
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        project: ${{fromJson(needs.find-changes.outputs.matrix)}}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '8.0' # Specify your .NET version
+
+    - name: Build Project
+      run: dotnet build ${{ matrix.project }} --configuration Release
+
+    - name: Run Tests
+      run: dotnet test ${{ matrix.project }} --no-build --verbosity normal
