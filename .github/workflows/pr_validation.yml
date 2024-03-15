@@ -65,7 +65,7 @@ jobs:
         run: |
           cd src/Test/AppA/Test.Api.App.A
           dotnet build
-          cd ..\tests\Test.Api.App.A.Tests
+          cd ../tests/Test.Api.App.A.Tests
           dotnet test
 
       - name: Generate Release Notes
