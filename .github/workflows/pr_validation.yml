@@ -90,8 +90,8 @@ jobs:
         shell: bash
 
       # Example step that uses the generated release notes, such as appending them to CHANGELOG.md
-      - name: Append Release Notes to CHANGELOG.md for App1
-        if: needs.changed-files.outputs.app1_changed == 'true'
+      - name: Append Release Notes to CHANGELOG.md for AppA
+        if: needs.changed-files.outputs.appA_changed == 'true'
         run: |
           FILE="./src/Test/AppA/CHANGELOG.md"
           echo -e "## Release Notes - $(date +'%Y-%m-%d')\n\n${{ env.RELEASE_NOTES }}\n\n$(cat $FILE)" > $FILE
