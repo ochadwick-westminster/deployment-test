@@ -96,6 +96,24 @@ jobs:
           FILE="./src/Test/AppA/CHANGELOG.md"
           echo -e "## Release Notes - $(date +'%Y-%m-%d')\n\n${{ env.RELEASE_NOTES }}\n\n$(cat $FILE)" > $FILE
 
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+      
+      - name: Add CHANGELOG.md to Git
+        run: |
+          git add ./src/Test/AppA/CHANGELOG.md
+      
+      - name: Commit changes
+        run: |
+          git commit -m "Update CHANGELOG.md with release notes" || echo "No changes to commit"
+          # The '|| echo "No changes to commit"' part is to avoid failing the step if there's nothing to commit
+      
+      - name: Push changes
+        run: |
+          git push origin HEAD:${{ github.head_ref }}
+
   build-and-test-appB:
     needs: changed-files
     if: >-
