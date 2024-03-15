@@ -71,24 +71,30 @@ jobs:
           dotnet test
 
       - name: Generate Release Notes
-        id: generate-notes-appA
         run: |
-          RELEASE_NOTES_APPA=""
-          RELEASE_NOTES_APPA+="## AppA\n"
-          RELEASE_NOTES_APPA+=$(git log --pretty=format:"- %s" $(git merge-base HEAD main)..HEAD -- src/Test/AppA/)
-          RELEASE_NOTES_APPA+="\n\n"
-          
-          # Repeat for other applications as necessary
-          
-          echo "RELEASE_NOTES_APPA<<EOF" >> $GITHUB_ENV
-          echo -e "$RELEASE_NOTES_APPA" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          # Initialize release notes variable
+          RELEASE_NOTES=""
 
-      - name: Append to CHANGELOG.md
+          APPA_NOTES=$(git log --pretty=format:"- %s" origin/main..HEAD -- src/Test/AppA/)
+          RELEASE_NOTES+="## AppA Changes\n$APPA_NOTES\n\n"
+
+          # Check if release notes were generated
+          if [ -z "$RELEASE_NOTES" ]; then
+            RELEASE_NOTES="No significant changes detected."
+          fi
+
+          # Set the release notes as an output variable
+          echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+          echo "$RELEASE_NOTES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+        shell: bash
+
+      # Example step that uses the generated release notes, such as appending them to CHANGELOG.md
+      - name: Append Release Notes to CHANGELOG.md for App1
+        if: needs.changed-files.outputs.app1_changed == 'true'
         run: |
-          NOTES="${{ env.RELEASE_NOTES_APPA }}"
           FILE="./src/Test/AppA/CHANGELOG.md"
-          echo -e "## Release Notes - $(date +'%Y-%m-%d')\n\n$NOTES\n\n$(cat $FILE)" > $FILE
+          echo -e "## Release Notes - $(date +'%Y-%m-%d')\n\n${{ env.RELEASE_NOTES }}\n\n$(cat $FILE)" > $FILE
 
   build-and-test-appB:
     needs: changed-files
