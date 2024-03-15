@@ -14,20 +14,20 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       core_changed: ${{ steps.filter.outputs.core_changed }}
-      appA_changed: ${{ steps.filter.outputs.appA_changed }}
+      appA_changed: ${{ steps.filter.outputs.appA }}
       appb_changed: ${{ steps.filter.outputs.appB_changed }}
       # Repeat for other apps as needed
     steps:
       - uses: actions/checkout@v2
-      - uses: dorny/paths-filter@v2
+      - uses: dorny/paths-filter@v3
         id: filter
         with:
           filters: |
             core:
               - 'src/Test/Core/**'
-            app1:
+            appA:
               - 'src/Test/AppA/**'
-            app2:
+            appB:
               - 'src/Test/AppB/**'
             # Repeat for other apps as needed
 
@@ -55,6 +55,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       
       - name: Setup .NET
         uses: actions/setup-dotnet@v1
@@ -65,27 +67,52 @@ jobs:
         run: |
           cd src/Test/AppA/Test.Api.App.A
           dotnet build
+          cd ../tests/Test.Api.App.A.Tests
           dotnet test
 
       - name: Generate Release Notes
-        id: generate-notes-appA
         run: |
-          RELEASE_NOTES_APPA=""
-          RELEASE_NOTES_APPA+="## AppA\n"
-          RELEASE_NOTES_APPA+=$(git log --pretty=format:"- %s" $(git merge-base HEAD main)..HEAD -- src/Test/AppA/)
-          RELEASE_NOTES_APPA+="\n\n"
-          
-          # Repeat for other applications as necessary
-          
-          echo "RELEASE_NOTES_APPA<<EOF" >> $GITHUB_ENV
-          echo -e "$RELEASE_NOTES_APPA" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          # Initialize release notes variable
+          RELEASE_NOTES=""
 
-      - name: Append to CHANGELOG.md
+          APPA_NOTES=$(git log --pretty=format:"- %s" origin/main..HEAD -- src/Test/AppA/)
+          RELEASE_NOTES+="## AppA Changes\n$APPA_NOTES\n\n"
+
+          # Check if release notes were generated
+          if [ -z "$RELEASE_NOTES" ]; then
+            RELEASE_NOTES="No significant changes detected."
+          fi
+
+          # Set the release notes as an output variable
+          echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+          echo "$RELEASE_NOTES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+        shell: bash
+
+      # Example step that uses the generated release notes, such as appending them to CHANGELOG.md
+      - name: Append Release Notes to CHANGELOG.md for AppA
+        if: needs.changed-files.outputs.appA_changed == 'true'
         run: |
-          NOTES="${{ env.RELEASE_NOTES_APPA }}"
           FILE="./src/Test/AppA/CHANGELOG.md"
-          echo -e "## Release Notes - $(date +'%Y-%m-%d')\n\n$NOTES\n\n$(cat $FILE)" > $FILE
+          echo -e "## Release Notes - $(date +'%Y-%m-%d')\n\n${{ env.RELEASE_NOTES }}\n\n$(cat $FILE)" > $FILE
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+      
+      - name: Add CHANGELOG.md to Git
+        run: |
+          git add ./src/Test/AppA/CHANGELOG.md
+      
+      - name: Commit changes
+        run: |
+          git commit -m "Update CHANGELOG.md with release notes" || echo "No changes to commit"
+          # The '|| echo "No changes to commit"' part is to avoid failing the step if there's nothing to commit
+      
+      - name: Push changes
+        run: |
+          git push origin HEAD:${{ github.head_ref }}
 
   build-and-test-appB:
     needs: changed-files
