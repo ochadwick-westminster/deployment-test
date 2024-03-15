@@ -25,9 +25,9 @@ jobs:
           filters: |
             core:
               - 'src/Test/Core/**'
-            app1:
+            appA:
               - 'src/Test/AppA/**'
-            app2:
+            appB:
               - 'src/Test/AppB/**'
             # Repeat for other apps as needed
 
