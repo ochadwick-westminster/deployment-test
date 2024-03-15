@@ -14,12 +14,12 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       core_changed: ${{ steps.filter.outputs.core_changed }}
-      appA_changed: ${{ steps.filter.outputs.appA_changed }}
+      appA_changed: ${{ steps.filter.outputs.appA }}
       appb_changed: ${{ steps.filter.outputs.appB_changed }}
       # Repeat for other apps as needed
     steps:
       - uses: actions/checkout@v2
-      - uses: dorny/paths-filter@v2
+      - uses: dorny/paths-filter@v3
         id: filter
         with:
           filters: |
