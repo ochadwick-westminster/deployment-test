@@ -1,4 +1,4 @@
-name: Build and Test Affected Applications
+name: Validate PR Changes
 
 on:
   pull_request:
@@ -35,7 +35,7 @@ jobs:
   validate-app-core:
     needs: calculate-changed-files
     if: needs.changed-files.outputs.core_changed == 'true'
-    uses: ./.github/workflows/pr-validation/validate-pr-app.yml
+    uses: ./.github/workflows/action_validate_pr.yml
     with:
       APP_NAME: 'Core'
       PROJECT_NAME: 'Test.Core'
@@ -44,7 +44,7 @@ jobs:
   validate-app-appA:
     needs: calculate-changed-files
     if: needs.changed-files.outputs.appA_changed == 'true'
-    uses: ./.github/workflows/pr-validation/validate-pr-app.yml
+    uses: ./.github/workflows/action_validate_pr.yml
     with:
       APP_NAME: 'AppA'
       PROJECT_NAME: 'Test.Api.App.A'
@@ -53,7 +53,7 @@ jobs:
   validate-app-appB:
     needs: calculate-changed-files
     if: needs.changed-files.outputs.appB_changed == 'true'
-    uses: ./.github/workflows/pr-validation/validate-pr-app.yml
+    uses: ./.github/workflows/action_validate_pr.yml
     with:
       APP_NAME: 'AppB'
       PROJECT_NAME: 'Test.Api.App.B'
