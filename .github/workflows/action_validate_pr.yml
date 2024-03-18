@@ -14,7 +14,7 @@ env:
 
 jobs:
   validate-app:
-    name: Validate Application - ${{ inputs.APP_NAME }}
+    name: Application Validation Checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -24,12 +24,12 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }} # Specify your .NET version
 
-      - name: Build ${{ inputs.APP_NAME }}
+      - name: Validate Build
         run: |
           cd src/Test/${{ inputs.APP_NAME }}/${{ inputs.PROJECT_NAME }}
           dotnet build
 
-      - name: Test ${{ inputs.APP_NAME }}
+      - name: Run Tests
         run: |
           cd src/Test/${{ inputs.APP_NAME }}/tests/${{ inputs.PROJECT_NAME }}.Tests
           dotnet test
