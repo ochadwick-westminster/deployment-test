@@ -27,7 +27,7 @@ jobs:
       - name: Validate Build
         run: |
           cd src/Test/${{ inputs.APP_NAME }}/${{ inputs.PROJECT_NAME }}
-          dotnet build
+          dotnet build -c Release -o build
 
       - name: Run Tests
         run: |
@@ -37,25 +37,34 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: published-app-${{ inputs.APP_NAME }}
-          path: publish/
+          name: build-app-${{ inputs.APP_NAME }}
+          path: /home/runner/work/deployment-test/deployment-test/src/Test/${{ inputs.APP_NAME }}/${{ inputs.PROJECT_NAME }}/build/
 
   codeql:
     name: Run CodeQL Analysis
+    needs: validate-app
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Download Artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: published-app
-          
+    #- name: Download Artifact
+    #  uses: actions/download-artifact@v4
+    #  with:
+    #    name: build-app-${{ inputs.APP_NAME }}
+      
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:
         languages: 'csharp'
+
+    ##- name: Autobuild
+    ##  uses: github/codeql-action/autobuild@v3
+
+    - name: Build
+      run: |
+        cd src/Test/${{ inputs.APP_NAME }}/${{ inputs.PROJECT_NAME }}
+        dotnet build
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
