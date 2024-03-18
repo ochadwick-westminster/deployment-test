@@ -11,7 +11,7 @@ public class WeatherForecastController : ControllerBase
     };
 
     private readonly ILogger<WeatherForecastController> _logger;
-    private readonly string _password = "123456";
+    private readonly string _password = "13456";
 
     public WeatherForecastController(ILogger<WeatherForecastController> logger)
     {
