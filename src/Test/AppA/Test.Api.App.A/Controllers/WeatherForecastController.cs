@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using System.Web.Security;
 
 namespace Test.Api.App.A.Controllers;
 [ApiController]
@@ -11,6 +12,7 @@ public class WeatherForecastController : ControllerBase
     };
 
     private readonly ILogger<WeatherForecastController> _logger;
+    private readonly string _password = "123456";
 
     public WeatherForecastController(ILogger<WeatherForecastController> logger)
     {
