@@ -20,6 +20,7 @@ jobs:
       # Repeat for other apps as needed
     steps:
       - uses: actions/checkout@v2
+      
       - uses: dorny/paths-filter@v3
         id: filter
         with:
@@ -33,6 +34,7 @@ jobs:
             # Repeat for other apps as needed
 
   validate-app-core:
+    name: App Core
     needs: calculate-changed-files
     if: needs.calculate-changed-files.outputs.core_changed == 'true'
     uses: ./.github/workflows/action_validate_pr.yml
@@ -42,6 +44,7 @@ jobs:
     secrets: inherit
 
   validate-app-appA:
+    name: App AppA
     needs: calculate-changed-files
     if: needs.calculate-changed-files.outputs.appA_changed == 'true'
     uses: ./.github/workflows/action_validate_pr.yml
@@ -51,6 +54,7 @@ jobs:
     secrets: inherit
 
   validate-app-appB:
+    name: App AppB
     needs: calculate-changed-files
     if: needs.calculate-changed-files.outputs.appB_changed == 'true'
     uses: ./.github/workflows/action_validate_pr.yml
