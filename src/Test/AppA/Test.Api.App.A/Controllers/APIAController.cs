@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Test.Core;
 
 namespace Test.Api.App.A.Controllers;
 [ApiController]
@@ -7,6 +6,7 @@ namespace Test.Api.App.A.Controllers;
 public class APIAController : ControllerBase
 {
     private readonly ILogger<APIAController> _logger;
+    private readonly string password = "123";
 
     public APIAController(ILogger<APIAController> logger)
     {
