@@ -27,7 +27,7 @@ jobs:
       - name: Validate Build
         run: |
           cd src/Test/${{ inputs.APP_NAME }}/${{ inputs.PROJECT_NAME }}
-          dotnet build -c Release -o build
+          dotnet build -c Release
 
       - name: Run Tests
         run: |
@@ -38,7 +38,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-app-${{ inputs.APP_NAME }}
-          path: /home/runner/work/deployment-test/deployment-test/src/Test/${{ inputs.APP_NAME }}/${{ inputs.PROJECT_NAME }}/build/
+          path: |
+            **/bin/Release/**
 
   codeql:
     name: Run CodeQL Analysis
