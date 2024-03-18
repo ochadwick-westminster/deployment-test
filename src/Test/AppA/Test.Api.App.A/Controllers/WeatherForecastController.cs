@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Web.Security;
 
 namespace Test.Api.App.A.Controllers;
 [ApiController]
