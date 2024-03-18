@@ -27,7 +27,7 @@ jobs:
       - name: Validate Build
         run: |
           cd src/Test/${{ inputs.APP_NAME }}/${{ inputs.PROJECT_NAME }}
-          dotnet build
+          dotnet publish -c Release -o publish #publishing to be able to upload artifact later
 
       - name: Run Tests
         run: |
