@@ -1,0 +1,35 @@
+name: 'Validate PR - Build & Test'
+on:
+  workflow_call: # This action is a re-usable action:
+    inputs:
+      APP_NAME:
+        required: true
+        type: string
+      PROJECT_NAME:
+        required: true
+        type: string
+
+env:
+  DOTNET_VERSION: '8.0.101'
+
+jobs:
+  validate-app:
+    name: Run Validation Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }} # Specify your .NET version
+
+      - name: Validate Build
+        run: |
+          cd src/Test/${{ inputs.APP_NAME }}/${{ inputs.PROJECT_NAME }}
+          dotnet build
+
+      - name: Run Tests
+        run: |
+          cd src/Test/${{ inputs.APP_NAME }}/tests/${{ inputs.PROJECT_NAME }}.Tests
+          dotnet test

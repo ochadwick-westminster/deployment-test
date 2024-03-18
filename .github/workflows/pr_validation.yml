@@ -1,4 +1,4 @@
-name: Build and Test Affected Applications
+name: Validate PR Changes
 
 on:
   pull_request:
@@ -10,15 +10,17 @@ on:
       - 'src/**'
 
 jobs:
-  changed-files:
+  calculate-changed-files:
+    name: Check what files have changes
     runs-on: ubuntu-latest
     outputs:
-      core_changed: ${{ steps.filter.outputs.core_changed }}
+      core_changed: ${{ steps.filter.outputs.core }}
       appA_changed: ${{ steps.filter.outputs.appA }}
-      appb_changed: ${{ steps.filter.outputs.appB_changed }}
+      appb_changed: ${{ steps.filter.outputs.appB }}
       # Repeat for other apps as needed
     steps:
       - uses: actions/checkout@v2
+      
       - uses: dorny/paths-filter@v3
         id: filter
         with:
@@ -31,103 +33,32 @@ jobs:
               - 'src/Test/AppB/**'
             # Repeat for other apps as needed
 
-  build-and-test-core:
-    needs: changed-files
-    if: needs.changed-files.outputs.core_changed == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '8.0.101' # Specify your .NET version
-      - name: Build and Test Core
-        run: |
-          cd src\Test\Core\Test.Core
-          dotnet build
-          dotnet test
+  validate-app-core:
+    name: App Core
+    needs: calculate-changed-files
+    if: needs.calculate-changed-files.outputs.core_changed == 'true'
+    uses: ./.github/workflows/action_validate_pr.yml
+    with:
+      APP_NAME: 'Core'
+      PROJECT_NAME: 'Test.Core'
+    secrets: inherit
 
-  build-and-test-appA:
-    needs: changed-files
-    if: >-
-      needs.changed-files.outputs.core_changed == 'true' ||
-      needs.changed-files.outputs.appA_changed == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '8.0.101' # Adjust .NET version as needed
-      
-      - name: Build and Test AppA
-        run: |
-          cd src/Test/AppA/Test.Api.App.A
-          dotnet build
-          cd ../tests/Test.Api.App.A.Tests
-          dotnet test
+  validate-app-appA:
+    name: App AppA
+    needs: calculate-changed-files
+    if: needs.calculate-changed-files.outputs.appA_changed == 'true'
+    uses: ./.github/workflows/action_validate_pr.yml
+    with:
+      APP_NAME: 'AppA'
+      PROJECT_NAME: 'Test.Api.App.A'
+    secrets: inherit
 
-      - name: Generate Release Notes
-        run: |
-          # Initialize release notes variable
-          RELEASE_NOTES=""
-
-          APPA_NOTES=$(git log --pretty=format:"- %s" origin/main..HEAD -- src/Test/AppA/)
-          RELEASE_NOTES+="## AppA Changes\n$APPA_NOTES\n\n"
-
-          # Check if release notes were generated
-          if [ -z "$RELEASE_NOTES" ]; then
-            RELEASE_NOTES="No significant changes detected."
-          fi
-
-          # Set the release notes as an output variable
-          echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
-          echo "$RELEASE_NOTES" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
-        shell: bash
-
-      # Example step that uses the generated release notes, such as appending them to CHANGELOG.md
-      - name: Append Release Notes to CHANGELOG.md for AppA
-        if: needs.changed-files.outputs.appA_changed == 'true'
-        run: |
-          FILE="./src/Test/AppA/CHANGELOG.md"
-          echo -e "## Release Notes - $(date +'%Y-%m-%d')\n\n${{ env.RELEASE_NOTES }}\n\n$(cat $FILE)" > $FILE
-
-      - name: Configure Git
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-      
-      - name: Add CHANGELOG.md to Git
-        run: |
-          git add ./src/Test/AppA/CHANGELOG.md
-      
-      - name: Commit changes
-        run: |
-          git commit -m "Update CHANGELOG.md with release notes" || echo "No changes to commit"
-          # The '|| echo "No changes to commit"' part is to avoid failing the step if there's nothing to commit
-      
-      - name: Push changes
-        run: |
-          git push origin HEAD:${{ github.head_ref }}
-
-  build-and-test-appB:
-    needs: changed-files
-    if: >-
-      needs.changed-files.outputs.core_changed == 'true' ||
-      needs.changed-files.outputs.appB_changed == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '8.0.101' # Adjust .NET version as needed
-      - name: Build and Test AppB
-        run: |
-          cd src/Test/AppB/Test.Api.App.B
-          dotnet build
-          dotnet test
+  validate-app-appB:
+    name: App AppB
+    needs: calculate-changed-files
+    if: needs.calculate-changed-files.outputs.appB_changed == 'true'
+    uses: ./.github/workflows/action_validate_pr.yml
+    with:
+      APP_NAME: 'AppB'
+      PROJECT_NAME: 'Test.Api.App.B'
+    secrets: inherit
