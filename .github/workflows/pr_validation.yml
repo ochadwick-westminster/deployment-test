@@ -6,6 +6,7 @@ on:
       - opened
       - edited
       - synchronize
+      - reopened
     paths:
       - 'src/**'
 
@@ -19,7 +20,7 @@ jobs:
       appb_changed: ${{ steps.filter.outputs.appB }}
       # Repeat for other apps as needed
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       
       - uses: dorny/paths-filter@v3
         id: filter
