@@ -27,7 +27,7 @@ jobs:
       - name: Validate Build
         run: |
           cd src/Test/${{ inputs.APP_NAME }}/${{ inputs.PROJECT_NAME }}
-          dotnet publish -c Release -o publish #publishing to be able to upload artifact later
+          dotnet build -c Release -o build
 
       - name: Run Tests
         run: |
@@ -37,8 +37,8 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: published-app-${{ inputs.APP_NAME }}
-          path: /home/runner/work/deployment-test/deployment-test/src/Test/${{ inputs.APP_NAME }}/${{ inputs.PROJECT_NAME }}/publish/
+          name: build-app-${{ inputs.APP_NAME }}
+          path: /home/runner/work/deployment-test/deployment-test/src/Test/${{ inputs.APP_NAME }}/${{ inputs.PROJECT_NAME }}/build/
 
   codeql:
     name: Run CodeQL Analysis
@@ -51,7 +51,7 @@ jobs:
     - name: Download Artifact
       uses: actions/download-artifact@v4
       with:
-        name: published-app-${{ inputs.APP_NAME }}
+        name: build-app-${{ inputs.APP_NAME }}
           
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
