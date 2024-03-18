@@ -47,11 +47,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-
-    #- name: Download Artifact
-    #  uses: actions/download-artifact@v4
-    #  with:
-    #    name: build-app-${{ inputs.APP_NAME }}
       
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
@@ -61,10 +56,15 @@ jobs:
     ##- name: Autobuild
     ##  uses: github/codeql-action/autobuild@v3
 
-    - name: Build
-      run: |
-        cd src/Test/${{ inputs.APP_NAME }}/${{ inputs.PROJECT_NAME }}
-        dotnet build
+    #- name: Build
+    #  run: |
+    #    cd src/Test/${{ inputs.APP_NAME }}/${{ inputs.PROJECT_NAME }}
+    #    dotnet build
+
+    - name: Download Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: build-app-${{ inputs.APP_NAME }}
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
