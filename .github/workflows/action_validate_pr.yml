@@ -58,8 +58,13 @@ jobs:
       with:
         languages: 'csharp'
 
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v3
+    ##- name: Autobuild
+    ##  uses: github/codeql-action/autobuild@v3
+
+    - name: Build
+      run: |
+        cd src/Test/${{ inputs.APP_NAME }}/${{ inputs.PROJECT_NAME }}
+        dotnet build
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
