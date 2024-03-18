@@ -38,7 +38,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: published-app-${{ inputs.APP_NAME }}
-          path: publish/
+          path: /home/runner/work/deployment-test/deployment-test/src/Test/${{ inputs.APP_NAME }}/${{ inputs.PROJECT_NAME }}/publish/
 
   codeql:
     name: Run CodeQL Analysis
