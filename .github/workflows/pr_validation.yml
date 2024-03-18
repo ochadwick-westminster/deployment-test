@@ -34,7 +34,7 @@ jobs:
 
   validate-app-core:
     needs: calculate-changed-files
-    if: needs.changed-files.outputs.core_changed == 'true'
+    if: needs.calculate-changed-files.outputs.core_changed == 'true'
     uses: ./.github/workflows/action_validate_pr.yml
     with:
       APP_NAME: 'Core'
@@ -43,7 +43,7 @@ jobs:
 
   validate-app-appA:
     needs: calculate-changed-files
-    if: needs.changed-files.outputs.appA_changed == 'true'
+    if: needs.calculate-changed-files.outputs.appA_changed == 'true'
     uses: ./.github/workflows/action_validate_pr.yml
     with:
       APP_NAME: 'AppA'
@@ -52,7 +52,7 @@ jobs:
 
   validate-app-appB:
     needs: calculate-changed-files
-    if: needs.changed-files.outputs.appB_changed == 'true'
+    if: needs.calculate-changed-files.outputs.appB_changed == 'true'
     uses: ./.github/workflows/action_validate_pr.yml
     with:
       APP_NAME: 'AppB'
