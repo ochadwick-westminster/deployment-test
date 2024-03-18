@@ -42,6 +42,7 @@ jobs:
 
   codeql:
     name: Run CodeQL Analysis
+    needs: validate-app
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
