@@ -2,11 +2,6 @@ name: Application Change Check
 
 on:
   pull_request:
-    types:
-      - opened
-      - edited
-      - synchronize
-      - reopened
     paths:
       - 'src/Test/**'
 
@@ -15,13 +10,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      
+      - name: Debugging information
+        run: |
+          echo "PR Base SHA: ${{ github.event.pull_request.base.sha }}"
+          echo "PR Head SHA: ${{ github.event.pull_request.head.sha }}"
+
       - name: Check for multiple application changes
         run: |
-          # Custom script to analyze changes. Replace with your logic.
-          # This script should exit with 1 if it detects violations.
-          # Example bash command:
-          apps_changed=$(git diff --name-only ${{ github.event.before }} ${{ github.event.pull_request.head.sha }} | grep '^src/Test' | cut -d '/' -f 2 | uniq | wc -l)
+          # Fetch the base branch to ensure the diff can compare across forks
+          git fetch origin ${{ github.event.pull_request.base.ref }}
+          
+          # Debug: List changes for diagnostic purposes
+          echo "Changed files:"
+          git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }}
+          
+          # Count unique applications affected by changes
+          apps_changed=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep '^src/Test/' | cut -d '/' -f 2 | uniq | wc -l)
+          echo "Applications changed: $apps_changed"
+          
           if [ "$apps_changed" -gt 1 ]; then
             echo "Error: More than one application has been modified."
             exit 1
+          else
+            echo "Check passed: Only one application modified."
           fi
