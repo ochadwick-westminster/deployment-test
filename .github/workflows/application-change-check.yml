@@ -1,0 +1,27 @@
+name: Application Change Check
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+    paths:
+      - 'src/**'
+
+jobs:
+  check-modifications:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Check for multiple application changes
+        run: |
+          # Custom script to analyze changes. Replace with your logic.
+          # This script should exit with 1 if it detects violations.
+          # Example bash command:
+          apps_changed=$(git diff --name-only ${{ github.event.before }} ${{ github.event.pull_request.head.sha }} | grep '^src/' | cut -d '/' -f 2 | uniq | wc -l)
+          if [ "$apps_changed" -gt 1 ]; then
+            echo "Error: More than one application has been modified."
+            exit 1
+          fi
