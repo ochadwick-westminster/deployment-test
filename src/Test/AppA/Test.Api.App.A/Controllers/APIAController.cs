@@ -8,7 +8,7 @@ public class APIAController : ControllerBase
     private readonly ILogger<APIAController> _logger;
     private readonly string password = "123";
 
-    private string connectionString = "Server=myServerAddress;Database=myDataBase;User Id=myUsername;Password=myPassword12;";
+    private string connectionString = "Server=myServerAddress;Database=myDataBase;User Id=myUsername;Password=myPassword123;";
 
 
     public APIAController(ILogger<APIAController> logger)
