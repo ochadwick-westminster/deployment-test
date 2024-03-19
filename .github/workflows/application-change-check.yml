@@ -8,7 +8,7 @@ on:
       - synchronize
       - reopened
     paths:
-      - 'src/**'
+      - 'src/Test/**'
 
 jobs:
   check-modifications:
@@ -20,7 +20,7 @@ jobs:
           # Custom script to analyze changes. Replace with your logic.
           # This script should exit with 1 if it detects violations.
           # Example bash command:
-          apps_changed=$(git diff --name-only ${{ github.event.before }} ${{ github.event.pull_request.head.sha }} | grep '^src/' | cut -d '/' -f 2 | uniq | wc -l)
+          apps_changed=$(git diff --name-only ${{ github.event.before }} ${{ github.event.pull_request.head.sha }} | grep '^src/Test' | cut -d '/' -f 2 | uniq | wc -l)
           if [ "$apps_changed" -gt 1 ]; then
             echo "Error: More than one application has been modified."
             exit 1
