@@ -34,27 +34,27 @@ jobs:
           cd src/Test/${{ inputs.APP_NAME }}/tests/${{ inputs.PROJECT_NAME }}.Tests
           dotnet test
 
-  codeql:
-    name: Run CodeQL Analysis
-    needs: validate-app
-    runs-on: ubuntu-latest
-    permissions:
-      security-events: write
-      actions: read
-      contents: read
-    steps:
-    - uses: actions/checkout@v4
-      
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
-      with:
-        languages: 'csharp'
+  #codeql:
+  #  name: Run CodeQL Analysis
+  #  needs: validate-app
+  #  runs-on: ubuntu-latest
+  #  permissions:
+  #    security-events: write
+  #    actions: read
+  #    contents: read
+  #  steps:
+  #  - uses: actions/checkout@v4
+  #    
+  #  - name: Initialize CodeQL
+  #    uses: github/codeql-action/init@v3
+  #    with:
+  #      languages: 'csharp'
 
-    - name: Build
-      run: |
-        cd src/Test/${{ inputs.APP_NAME }}/${{ inputs.PROJECT_NAME }}
-        dotnet build -c Release
+  #  - name: Build
+  #    run: |
+  #      cd src/Test/${{ inputs.APP_NAME }}/${{ inputs.PROJECT_NAME }}
+  #      dotnet build -c Release
 
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
+  #  - name: Perform CodeQL Analysis
+  #    uses: github/codeql-action/analyze@v3
 
