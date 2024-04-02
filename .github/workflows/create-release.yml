@@ -15,16 +15,19 @@ jobs:
     - name: Determine Changeset for AppA
       id: changeset
       run: |
-        # Determine the last tag to compare changes from
-        LAST_TAG=$(git describe --tags --abbrev=0)
-        
-        # List all changed files since the last tag, filtering by those in the App1 or Common directories
+        # Attempt to get the last tag, defaulting to the initial commit if none exist
+        LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo $(git rev-list --max-parents=0 HEAD))
+
+        # Echo the last tag or initial commit for debugging purposes
+        echo "Using base reference: $LAST_TAG"
+    
+        # List all changed files since the last tag, filtering by those in the AppA or Core directories
         CHANGED_FILES=$(git diff --name-only $LAST_TAG HEAD | grep -E "src/Test/AppA/|src/Test/Core/")
         echo "Changed Files: $CHANGED_FILES"
         
         # Check if the variable is empty or not
         if [[ -z "$CHANGED_FILES" ]]; then
-          echo "APP1_AFFECTED=false" >> $GITHUB_ENV
+          echo "APPA_AFFECTED=false" >> $GITHUB_ENV
         else
-          echo "APP1_AFFECTED=true" >> $GITHUB_ENV
+          echo "APPA_AFFECTED=true" >> $GITHUB_ENV
         fi
