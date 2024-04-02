@@ -60,5 +60,5 @@ jobs:
         # Set the release notes in the environment variable
         #cat release_notes.md >> $GITHUB_ENV
         echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
-        echo "Hello World!" >> $GITHUB_ENV
+        cat release_notes.md >> $GITHUB_ENV
         echo "EOF" >> $GITHUB_ENV
