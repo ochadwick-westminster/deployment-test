@@ -59,9 +59,22 @@ jobs:
         cat release_notes.md
     
         # Set the release notes in the environment variable
-        echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
-        cat release_notes.md >> $GITHUB_ENV
-        echo "EOF" >> $GITHUB_ENV
+        #echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+        #cat release_notes.md >> $GITHUB_ENV
+        #echo "EOF" >> $GITHUB_ENV
+
+    - name: Upload Release Notes as Artifact
+      if: env.APPA_AFFECTED == 'true'
+      uses: actions/upload-artifact@v3
+      with:
+        name: release-notes
+        path: release_notes.md
+
+    - name: Download Release Notes
+      uses: actions/download-artifact@v3
+      with:
+        name: release-notes
+        path: artifact-notes
 
     - name: Create Release for App1
       if: env.APPA_AFFECTED == 'true'
@@ -71,6 +84,6 @@ jobs:
       with:
         tag_name: 'appA-${{ github.run_number }}'
         release_name: AppA Release ${{ github.run_number }}
-        body: ${{ steps.release_notes.outputs.notes }}
+        body_path: artifact-notes/release_notes.md
         draft: true
         prerelease: false
