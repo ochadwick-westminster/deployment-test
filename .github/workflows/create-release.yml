@@ -22,7 +22,7 @@ jobs:
         echo "Using base reference: $LAST_TAG"
     
         # List all changed files since the last tag, filtering by those in the AppA or Core directories
-        CHANGED_FILES=$(git diff --name-only $LAST_TAG HEAD | grep -E "src/Test/AppA/|src/Test/Core/")
+        CHANGED_FILES=$(git diff --name-only $LAST_TAG HEAD | grep -E "src/Test/AppA/")
         echo "Changed Files: $CHANGED_FILES"
         
         # Check if the variable is empty or not
@@ -33,3 +33,31 @@ jobs:
           echo "APPA_AFFECTED=true" >> $GITHUB_ENV
           echo "APPA_AFFECTED=true"
         fi
+
+    - name: Generate Release Notes
+      if: env.APPA_AFFECTED == 'true'
+      run: |
+        # Attempt to get the last tag, default to the initial commit if none exist
+        LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo $(git rev-list --max-parents=0 HEAD))
+        echo "Generating release notes from: $LAST_TAG"
+    
+        # Check if LAST_TAG is the initial commit due to lack of tags
+        IS_FIRST_TAG=$(if [ "$LAST_TAG" == "$(git rev-list --max-parents=0 HEAD)" ]; then echo "true"; else echo "false"; fi)
+    
+        # Generate release notes
+        if [ "$IS_FIRST_TAG" == "true" ]; then
+          # Handle the first tag scenario
+          echo "Initial Release" > release_notes.md
+          git log --pretty=format:"- %s" $(git rev-list --max-parents=0 HEAD)..HEAD -- src/Test/AppA/ >> release_notes.md
+        else
+          # Handle subsequent tags
+          git log $LAST_TAG..HEAD --pretty=format:"- %s" -- src/Test/AppA/ > release_notes.md
+        fi
+    
+        # Print release notes for debug purposes
+        cat release_notes.md
+    
+        # Set the release notes in the environment variable
+        echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+        cat release_notes.md >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
