@@ -59,12 +59,9 @@ jobs:
         cat release_notes.md
     
         # Set the release notes in the environment variable
-        #echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
-        #cat release_notes.md >> $GITHUB_ENV
-        #echo "EOF" >> $GITHUB_ENV
-        echo "notes<<EOF" >> $GITHUB_OUTPUT
-        cat release_notes.md
-        echo "EOF" >> $GITHUB_OUTPUT
+        echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+        cat release_notes.md >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
 
     - name: Create Release for App1
       if: env.APPA_AFFECTED == 'true'
