@@ -62,8 +62,9 @@ jobs:
         #echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
         #cat release_notes.md >> $GITHUB_ENV
         #echo "EOF" >> $GITHUB_ENV
-
-        echo "::set-output name=notes::$(cat release_notes.md)"
+        echo "notes<<EOF" >> $GITHUB_OUTPUT
+        cat release_notes.md
+        echo "EOF" >> $GITHUB_OUTPUT
 
     - name: Create Release for App1
       if: env.APPA_AFFECTED == 'true'
