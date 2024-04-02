@@ -1,9 +1,7 @@
 name: Release .NET Application AppA
 
 on:
-  push:
-    branches:
-      - main # or any other branch you use for releases
+  workflow_dispatch
 
 jobs:
   build-and-release:
