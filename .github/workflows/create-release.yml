@@ -161,12 +161,15 @@ jobs:
         FEATURES=""
         FIXES=""
         BREAKING_CHANGES=""
+        echo "1"
     
         # Get the hash of the last release tag
         LAST_TAG_HASH=$(git rev-list -n 1 $(git describe --tags --abbrev=0) || echo "")
+        echo "2"
     
         # Fetch commits affecting the 'src/Test/AppA' folder since the last release
         IFS=$'\n' read -r -d '' -a COMMITS <<< "$(git log ${LAST_TAG_HASH}..HEAD --pretty=format:"%H" -- src/Test/AppA/)"
+        echo "3"
     
         # Loop through each commit affecting 'src/Test/AppA'
         for COMMIT_HASH in "${COMMITS[@]}"; do
