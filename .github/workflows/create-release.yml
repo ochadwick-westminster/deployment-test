@@ -169,7 +169,8 @@ jobs:
     
         # Check if the last tag exists and get its hash; otherwise, use the first commit.
         LAST_TAG_HASH=$(git rev-list -n 1 $(git describe --tags --abbrev=0) 2>/dev/null || git rev-list --max-parents=0 HEAD)
-      
+
+        echo "Start looking at commits"
         # Loop through each commit affecting 'src/Test/AppA', since the last tag
         while IFS= read -r COMMIT_HASH; do
           echo "Processing commit message"
