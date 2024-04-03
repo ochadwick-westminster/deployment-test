@@ -35,7 +35,7 @@ jobs:
         fi
 
     - name: Build and Test Application
-      if: env.APP_AFFECTED == 'true'
+      if: env.APPA_AFFECTED == 'true'
       run: |
         # Insert commands to build and test your .NET application
         dotnet build ./src/Test/AppA/Test.Api.App.A
