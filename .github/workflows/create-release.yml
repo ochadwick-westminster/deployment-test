@@ -57,6 +57,7 @@ jobs:
           LATEST_TAG="appA-v0.0.0"
         fi
         echo "Latest tag: $LATEST_TAG"
+        echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
     
         # Initialize version components from the latest tag
         #PREFIX=$(echo $LATEST_TAG | grep -o '^[^-]*') # Extract prefix (appA-v)
@@ -126,7 +127,7 @@ jobs:
 
     - name: Generate Release Notes
       id: release_notes
-      if: ${{ env.APPA_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
+      if: ${{ env.APPA_AFFECTED == 'true' && env.VERSION_CHANGED == 'true'  && env.VERSION_CHANGED == 'false' }}
       run: |
         # Attempt to get the last tag, default to the initial commit if none exist
         LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo $(git rev-list --max-parents=0 HEAD))
@@ -155,7 +156,7 @@ jobs:
 
     - name: Generate Formatted Release Notes
       id: generate_release_notes
-      if: ${{ env.APPA_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' && env.VERSION_CHANGED == 'false' }}
+      if: ${{ env.APPA_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
       run: |
         # Enable extended globbing for more complex pattern matching
         shopt -s extglob
@@ -171,8 +172,10 @@ jobs:
       
         # Loop through each commit affecting 'src/Test/AppA', since the last tag
         while IFS= read -r COMMIT_HASH; do
+          echo "Processing commit message"
           # Get the commit message
           COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s" ${COMMIT_HASH})
+          echo "Commit message: $COMMIT_MESSAGE"
       
           # Categorize the commit based on its message
           if [[ "$COMMIT_MESSAGE" == feat:* ]]; then
