@@ -45,6 +45,9 @@ jobs:
       id: calc_version
       if: env.APPA_AFFECTED == 'true'
       run: |
+        # Enable case-insensitive matching
+        shopt -s nocasematch
+    
         # Ensure all tags are fetched
         git fetch --tags
     
@@ -78,8 +81,7 @@ jobs:
           # Check if the commit affects the appA directory
           if git diff --name-only $COMMIT_ID^! | grep -q 'src/Test/AppA/'; then
             COMMIT_MSG=$(git log -1 --pretty=format:"%s" $COMMIT_ID)
-            BREAKING_CHANGE = "BREAKING CHANGE:"
-            if [[ "${COMMIT_MSG,,}" == *"${BREAKING_CHANGE,,}"* ]]; then
+            if [[ "$COMMIT_MSG" == *"BREAKING CHANGE:"* ]]; then
               MAJOR_INC=1
               break # Major version bump overrides other increments
             elif [[ "$COMMIT_MSG" == "feat:"* ]]; then
@@ -89,6 +91,9 @@ jobs:
             fi
           fi
         done
+
+        # Disable case-insensitive matching after use
+        shopt -u nocasematch
     
         # Calculate next version based on increments
         if [[ $MAJOR_INC -eq 1 ]]; then
