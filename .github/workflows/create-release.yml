@@ -126,7 +126,7 @@ jobs:
 
     - name: Generate Release Notes
       id: release_notes
-      if: ${{ env.APPA_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' && env.VERSION_CHANGED == 'false' }}
+      if: ${{ env.APPA_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
       run: |
         # Attempt to get the last tag, default to the initial commit if none exist
         LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo $(git rev-list --max-parents=0 HEAD))
@@ -155,6 +155,7 @@ jobs:
 
     - name: Generate Formatted Release Notes
       id: generate_release_notes
+      if: ${{ env.APPA_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' && env.VERSION_CHANGED == 'false' }}
       run: |
         # Enable extended globbing for more complex pattern matching
         shopt -s extglob
