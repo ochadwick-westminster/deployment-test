@@ -101,8 +101,11 @@ jobs:
         PREFIX=$(echo $LATEST_TAG | grep -o '^[^-]*') # Extract prefix (appA-v)
         VERSION=$(echo $LATEST_TAG | sed -e "s/^$PREFIX-//") # Remove prefix
         MAJOR=$(echo $VERSION | cut -d '.' -f 1)
+        echo "Major: $(echo $VERSION | cut -d '.' -f 1)"
         MINOR=$(echo $VERSION | cut -d '.' -f 2)
+        echo "Minor: $(echo $VERSION | cut -d '.' -f 2)"
         PATCH=$(echo $VERSION | cut -d '.' -f 3)
+        echo "Patch: $(echo $VERSION | cut -d '.' -f 3)"
     
         # Initialize increment variables
         MAJOR_INC=0
