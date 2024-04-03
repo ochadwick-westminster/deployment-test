@@ -35,7 +35,7 @@ jobs:
         fi
 
     - name: Build and Test Application
-      if: env.APPA_AFFECTED == 'true'
+      if: env.APP_AFFECTED == 'true'
       run: |
         # Insert commands to build and test your .NET application
         dotnet build ./src/Test/AppA/Test.Api.App.A
@@ -78,7 +78,8 @@ jobs:
           # Check if the commit affects the appA directory
           if git diff --name-only $COMMIT_ID^! | grep -q 'src/Test/AppA/'; then
             COMMIT_MSG=$(git log -1 --pretty=format:"%s" $COMMIT_ID)
-            if [[ "$COMMIT_MSG" | grep -qi *"BREAKING CHANGE:"* ]]; then
+            BREAKING_CHANGE = "BREAKING CHANGE:"
+            if [[ "${COMMIT_MSG,,}" == *"${BREAKING_CHANGE,,}"* ]]; then
               MAJOR_INC=1
               break # Major version bump overrides other increments
             elif [[ "$COMMIT_MSG" == "feat:"* ]]; then
