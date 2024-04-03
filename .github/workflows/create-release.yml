@@ -163,40 +163,35 @@ jobs:
         BREAKING_CHANGES=""
         echo "1"
     
-        # Get the hash of the last release tag
-        LAST_TAG_HASH=$(git rev-list -n 1 $(git describe --tags --abbrev=0) || echo "")
-        echo "2"
-    
-        # Fetch commits affecting the 'src/Test/AppA' folder since the last release
-        IFS=$'\n' read -r -d '' -a COMMITS <<< "$(git log ${LAST_TAG_HASH}..HEAD --pretty=format:"%H" -- src/Test/AppA/)"
-        echo "3"
-    
-        # Loop through each commit affecting 'src/Test/AppA'
-        for COMMIT_HASH in "${COMMITS[@]}"; do
+        # Check if the last tag exists and get its hash; otherwise, use the first commit.
+        LAST_TAG_HASH=$(git rev-list -n 1 $(git describe --tags --abbrev=0) 2>/dev/null || git rev-list --max-parents=0 HEAD)
+      
+        # Loop through each commit affecting 'src/Test/AppA', since the last tag
+        while IFS= read -r COMMIT_HASH; do
+          # Get the commit message
           COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s" ${COMMIT_HASH})
-          # Analyze the commit message to categorize the commit
+      
+          # Categorize the commit based on its message
           if [[ "$COMMIT_MESSAGE" == feat:* ]]; then
             FEATURES+="\n- ${COMMIT_MESSAGE#*: } (${COMMIT_HASH:0:7})"
           elif [[ "$COMMIT_MESSAGE" == fix:* ]]; then
             FIXES+="\n- ${COMMIT_MESSAGE#*: } (${COMMIT_HASH:0:7})"
-          elif [[ "$COMMIT_MESSAGE" == *"BREAKING CHANGE"* || "$COMMIT_MESSAGE" == *":"*! ]]; then
+          elif [[ "$COMMIT_MESSAGE" =~ BREAKING[[:space:]]CHANGE || "$COMMIT_MESSAGE" =~ \! ]]; then
             BREAKING_CHANGES+="\n- ${COMMIT_MESSAGE#*: } (${COMMIT_HASH:0:7})"
           fi
-        done
-    
-        # Combine all sections into a single markdown string
-        RELEASE_NOTES="## Features${FEATURES}\n## Fixes${FIXES}\n## Breaking Changes${BREAKING_CHANGES}"
-    
+        done < <(git log ${LAST_TAG_HASH}..HEAD --pretty=format:"%H" -- src/Test/AppA/)
+      
+        # Assemble the release notes
+        RELEASE_NOTES="# Release Notes for App1\n## Features${FEATURES}\n## Fixes${FIXES}\n## Breaking Changes${BREAKING_CHANGES}"
+      
         # Save the release notes to a markdown file
-        echo -e "Release Notes for App1:\n$RELEASE_NOTES" > release_notes.md
-    
-        # Output the formatted release notes for later steps
-        echo "RELEASE_NOTES<<EOF" >> $GITHUB_OUTPUT
+        echo -e "$RELEASE_NOTES" > release_notes.md
+      
+        # Use the GITHUB_OUTPUT for setting formatted release notes as an output variable
+        echo "release_notes<<EOF" >> $GITHUB_OUTPUT
         echo -e "$RELEASE_NOTES" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
       shell: bash
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload Release Notes as Artifact
       if: ${{ env.APPA_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
