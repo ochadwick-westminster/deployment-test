@@ -158,7 +158,7 @@ jobs:
       with:
         #tag_name: 'appA-${{ github.run_number }}'
         #release_name: AppA Release ${{ github.run_number }}
-        release_name: AppA Release v${{ steps.calc_version.outputs.next_version }}
+        release_name: 'appA-v${{ steps.calc_version.outputs.next_version }}'
         tag_name: 'appA-v${{ steps.calc_version.outputs.next_version }}'
         body_path: artifact-notes/release_notes.md
         draft: true
