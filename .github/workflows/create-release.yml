@@ -60,7 +60,7 @@ jobs:
     
         # Initialize version components from the latest tag
         #PREFIX=$(echo $LATEST_TAG | grep -o '^[^-]*') # Extract prefix (appA-v)
-        PREFIX=$(echo $LATEST_TAG | grep -oE '^[^-]+-v'
+        PREFIX=$(echo $LATEST_TAG | grep -oE '^[^-]+-v')
         echo "Prefix: $PREFIX"
         VERSION=$(echo $LATEST_TAG | sed -e "s/^$PREFIX-//") # Remove prefix
         echo "Version less prefix: $(echo $LATEST_TAG | sed -e "s/^$PREFIX-//")"
