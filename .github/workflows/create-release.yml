@@ -150,6 +150,12 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Create Tag
+      run: git tag appA-v${{ steps.calc_version.outputs.next_version }}
+    
+    - name: Publish tags
+      run: git push --tags
+      
     - name: Create Release for AppA
       if: env.APPA_AFFECTED == 'true'
       uses: actions/create-release@v1
