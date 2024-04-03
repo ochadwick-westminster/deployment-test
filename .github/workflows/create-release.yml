@@ -62,8 +62,8 @@ jobs:
         #PREFIX=$(echo $LATEST_TAG | grep -o '^[^-]*') # Extract prefix (appA-v)
         PREFIX=$(echo $LATEST_TAG | grep -oE '^[^-]+-v')
         echo "Prefix: $PREFIX"
-        VERSION=$(echo $LATEST_TAG | sed -e "s/^$PREFIX-//") # Remove prefix
-        echo "Version less prefix: $(echo $LATEST_TAG | sed -e "s/^$PREFIX-//")"
+        VERSION=$(echo $LATEST_TAG | sed -e "s/^$PREFIX//") # Remove prefix
+        echo "Version less prefix: $(echo $LATEST_TAG | sed -e "s/^$PREFIX//")"
         MAJOR=$(echo $VERSION | cut -d '.' -f 1)
         echo "Major: $(echo $VERSION | cut -d '.' -f 1)"
         MINOR=$(echo $VERSION | cut -d '.' -f 2)
