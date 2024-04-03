@@ -34,6 +34,13 @@ jobs:
           echo "APPA_AFFECTED=true"
         fi
 
+    - name: Build and Test Application
+      if: env.APP_AFFECTED == 'true'
+      run: |
+        # Insert commands to build and test your .NET application
+        dotnet build ./src/Test/AppA/Test.Api.App.A
+        dotnet test ./src/Test/AppA/tests/Test.Api.App.A.Tests
+
     - name: Generate Release Notes
       id: release_notes
       if: env.APPA_AFFECTED == 'true'
@@ -76,14 +83,79 @@ jobs:
         name: release-notes
         path: artifact-notes
 
-    - name: Create Release for App1
+    - name: Calculate next version for AppA
+      id: calc_version
+      if: env.APPA_AFFECTED == 'true'
+      run: |
+        # Ensure all tags are fetched
+        git fetch --tags
+    
+        # Get the latest version tag for App1
+        LATEST_TAG=$(git tag --list 'appA-*' --sort=-v:refname | head -n 1)
+        if [[ -z "$LATEST_TAG" ]]; then
+          LATEST_TAG="appA-v0.0.0"
+        fi
+        echo "Latest tag: $LATEST_TAG"
+    
+        # Initialize version components from the latest tag
+        PREFIX=$(echo $LATEST_TAG | grep -o '^[^-]*') # Extract prefix (appA-v)
+        VERSION=$(echo $LATEST_TAG | sed -e "s/^$PREFIX-//") # Remove prefix
+        MAJOR=$(echo $VERSION | cut -d '.' -f 1)
+        MINOR=$(echo $VERSION | cut -d '.' -f 2)
+        PATCH=$(echo $VERSION | cut -d '.' -f 3)
+    
+        # Initialize increment variables
+        MAJOR_INC=0
+        MINOR_INC=0
+        PATCH_INC=0
+    
+        # Use git diff to analyze commits for version bump, filtering by appA directory
+        COMMIT_IDS=$(git log $LATEST_TAG..HEAD --pretty=format:"%H")
+        for COMMIT_ID in $COMMIT_IDS
+        do
+          # Check if the commit affects the appA directory
+          if git diff --name-only $COMMIT_ID^! | grep -q 'src/Test/AppA/'; then
+            COMMIT_MSG=$(git log -1 --pretty=format:"%s" $COMMIT_ID)
+            if [[ "$COMMIT_MSG" == *"BREAKING CHANGE:"* ]]; then
+              MAJOR_INC=1
+              break # Major version bump overrides other increments
+            elif [[ "$COMMIT_MSG" == "feat:"* ]]; then
+              MINOR_INC=1
+            elif [[ "$COMMIT_MSG" == "fix:"* ]]; then
+              PATCH_INC=1
+            fi
+          fi
+        done
+    
+        # Calculate next version based on increments
+        if [[ $MAJOR_INC -eq 1 ]]; then
+          MAJOR=$(($MAJOR + 1))
+          MINOR=0
+          PATCH=0
+        elif [[ $MINOR_INC -eq 1 ]]; then
+          MINOR=$(($MINOR + 1))
+          PATCH=0
+        elif [[ $PATCH_INC -eq 1 ]]; then
+          PATCH=$(($PATCH + 1))
+        fi
+    
+        NEXT_VERSION="$PREFIX-$MAJOR.$MINOR.$PATCH"
+        echo "Next version: $NEXT_VERSION"
+        #echo "::set-output name=next_version::$NEXT_VERSION"
+        echo "next_version=$NEXT_VERSION" >> $GITHUB_OUTPUT
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create Release for AppA
       if: env.APPA_AFFECTED == 'true'
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: 'appA-${{ github.run_number }}'
-        release_name: AppA Release ${{ github.run_number }}
+        #tag_name: 'appA-${{ github.run_number }}'
+        #release_name: AppA Release ${{ github.run_number }}
+        release_name: AppA Release v${{ steps.calc_version.outputs.next_version }}
+        tag_name: 'appA-v${{ steps.calc_version.outputs.next_version }}'
         body_path: artifact-notes/release_notes.md
         draft: true
         prerelease: false
