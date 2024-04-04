@@ -159,9 +159,9 @@ jobs:
         FEATURES=""
 
         while IFS= read -r line; do
-          if [[ "$line" == "feat:"* ]]; then
+          if [[ "$line" == *"feat:"* ]]; then
             FEATURES+="- $line\n"
-          elif [[ "$line" == "fix:"* ]]; then
+          elif [[ "$line" == *"fix:"* ]]; then
             FIXES+="- $line\n"
           else
             OTHERS+="- $line\n"
