@@ -162,6 +162,8 @@ jobs:
           if [[ "$line" == *"feat:"* ]]; then
             echo "Commit is a feature"
             FEATURES+="- $line\n"
+            echo $line
+            echo $FEATURES
           elif [[ "$line" == *"fix:"* ]]; then
             echo "Commit is a fix"
             FIXES+="- $line\n"
