@@ -175,6 +175,7 @@ jobs:
         
         # Combine everything into RELEASE_NOTES
         RELEASE_NOTES=""
+        echo "Features: $FEATURES"
         if [ ! -z "$FEATURES" ]; then
           echo "Adding features to release notes"
           RELEASE_NOTES+="## Features\n$FEATURES\n"
