@@ -140,6 +140,7 @@ jobs:
         #echo "::set-output name=commits::$COMMITS"
         COMMITS=$(git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%H" -- 'src/Test/AppA/')
         echo "::set-output name=commits::$(echo $COMMITS | tr ' ' '\n')"
+        echo $COMMITS | tr ' ' '\n'
 
     - name: List commits since a given tag
       run: |
@@ -149,6 +150,7 @@ jobs:
     - name: Generate release notes based on semantic principles
       id: release-notes
       run: |
+        echo ${{ steps.get-commits.outputs.commits }}
         FEATURES=""
         FIXES=""
         OTHERS=""
