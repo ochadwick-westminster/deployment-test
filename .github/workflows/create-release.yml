@@ -144,7 +144,7 @@ jobs:
     - name: List commits since a given tag
       run: |
         echo "Commits since tag ${{ steps.last-tag.outputs.tag }}:"
-        git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%H"
+        git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%H" -- 'src/Test/AppA/'
 
     - name: Generate release notes based on semantic principles
       id: release-notes
