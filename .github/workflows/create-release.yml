@@ -138,7 +138,7 @@ jobs:
       run: |
         #COMMITS=$(git log ${{ steps.last-tag.outputs.tag }}..HEAD --format="%H" -- 'src/Test/AppA/')
         #echo "::set-output name=commits::$COMMITS"
-        COMMITS=$(git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%H" -- 'src/Test/AppA/')
+        COMMITS=$(git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%H")
         echo "::set-output name=commits::$(echo $COMMITS | tr ' ' '\n')"
 
     - name: Generate release notes based on semantic principles
