@@ -147,6 +147,7 @@ jobs:
         for COMMIT_HASH in ${{ steps.get-commits.outputs.commits }}
         do
           COMMIT_MSG=$(git log --format=%B -n 1 $COMMIT_HASH)
+          echo "- ${COMMIT_MSG}\n"
           # Check if commit message starts with 'feat'
           if [[ $COMMIT_MSG == "feat:"* ]]; then
             FEATURES+="- ${COMMIT_MSG}\n"
