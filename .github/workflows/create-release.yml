@@ -178,17 +178,17 @@ jobs:
         if [ ! -z "$FEATURES" ]; then
           echo "Adding features to release notes"
           RELEASE_NOTES+="## Features\n$FEATURES\n"
-          echo "$RELEASE_NOTES
+          echo "$RELEASE_NOTES"
         fi
         if [ ! -z "$FIXES" ]; then
           echo "Adding fixes to release notes"
           RELEASE_NOTES+="## Fixes\n$FIXES\n"
-          echo "$RELEASE_NOTES
+          echo "$RELEASE_NOTES"
         fi
         if [ ! -z "$OTHERS" ]; then
           echo "Adding other to release notes"
           RELEASE_NOTES+="## Others\n$OTHERS\n"
-          echo "$RELEASE_NOTES
+          echo "$RELEASE_NOTES"
         fi
         
         echo "Release notes:"
