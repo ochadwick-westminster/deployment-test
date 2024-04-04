@@ -188,7 +188,7 @@ jobs:
         while IFS= read -r line; do
           if [[ "$line" == *"feat:"* ]]; then
             #FEATURES+="- $line\n"
-            FEATURES+="- $(echo $commit_message | cut -d ' ' -f3-)\n"
+            FEATURES+="- $(echo $line | cut -d ' ' -f3-)\n"
           elif [[ "$line" == *"fix:"* ]]; then
             FIXES+="- $line\n"
           else
