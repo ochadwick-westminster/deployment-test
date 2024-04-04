@@ -159,13 +159,9 @@ jobs:
         last_tag=${{ steps.last-tag.outputs.tag }}
         
         if [[ $last_tag ]]; then
-          echo "Git log of commits since last tag:"
-          git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%h %s" -- 'src/Test/AppA/'
           commits=$(git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%h %s" -- 'src/Test/AppA/' | base64 -w 0)
         else
-          echo "Git log of commits since last tag:"
-          git log --pretty=format:"%h %s" -- 'src/Test/AppA/'
-          commits=$(git log --pretty=format:"%H" -- 'src/Test/AppA/' | base64 -w 0)
+          commits=$(git log --pretty=format:"%h %s" -- 'src/Test/AppA/' | base64 -w 0)
         fi
         
         #commits=$(git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%h %s"  -- 'src/Test/AppA/' | base64 -w 0)
