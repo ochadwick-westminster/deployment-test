@@ -141,7 +141,10 @@ jobs:
         #echo "Commits since tag ${{ steps.last-tag.outputs.tag }}:"
         #git log ${{ steps.last-tag.outputs.tag }}..HEAD --oneline -- 'src/Test/AppA/'
         #echo $COMMITS | tr ' ' '\n'
+        echo "Git log of commits since last tag:"
+        git log ${{ steps.last-tag.outputs.tag }}..HEAD
         commits=$(git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%h %s"  -- 'src/Test/AppA/')
+        echo "Outputting commits:"
         echo "::set-output name=commits::$commits"
 
     - name: Generate release notes based on semantic principles
