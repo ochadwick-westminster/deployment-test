@@ -152,44 +152,30 @@ jobs:
         # Decode the Base64 encoded commits
         commits=$(echo ${{ steps.get-commits.outputs.commits }} | base64 --decode)
 
-        FEATURES=""
+        echo "Generating release notes..."
+        RELEASE_NOTES="## Release Notes"
         FIXES=""
         OTHERS=""
+        FEATURES=""
 
-        echo "$commits" | while IFS= read -r line; do
-          echo "$line"
-          if [[ "$line" == *"feat:"* ]]; then
-            echo "Commit is a feature"
+        while IFS= read -r line; do
+          if [[ "$line" == "feat:"* ]]; then
             FEATURES+="- $line\n"
-            echo $line
-            echo $FEATURES
-          elif [[ "$line" == *"fix:"* ]]; then
-            echo "Commit is a fix"
+          elif [[ "$line" == "fix:"* ]]; then
             FIXES+="- $line\n"
           else
-            echo "Commit is something else"
             OTHERS+="- $line\n"
           fi
-          echo "========"
-        done
+        done < <(echo "$commits")
         
-        # Combine everything into RELEASE_NOTES
-        RELEASE_NOTES=""
-        echo "Features: $FEATURES"
-        if [ ! -z "$FEATURES" ]; then
-          echo "Adding features to release notes"
-          RELEASE_NOTES+="## Features\n$FEATURES\n"
-          echo "$RELEASE_NOTES"
+        if [[ $FEATURES ]]; then
+          RELEASE_NOTES+="\n\n### Features\n$FEATURES"
         fi
-        if [ ! -z "$FIXES" ]; then
-          echo "Adding fixes to release notes"
-          RELEASE_NOTES+="## Fixes\n$FIXES\n"
-          echo "$RELEASE_NOTES"
+        if [[ $FIXES ]]; then
+          RELEASE_NOTES+="\n\n### Fixes\n$FIXES"
         fi
-        if [ ! -z "$OTHERS" ]; then
-          echo "Adding other to release notes"
-          RELEASE_NOTES+="## Others\n$OTHERS\n"
-          echo "$RELEASE_NOTES"
+        if [[ $OTHERS ]]; then
+          RELEASE_NOTES+="\n\n### Others\n$OTHERS"
         fi
         
         echo "Release notes:"
