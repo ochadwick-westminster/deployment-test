@@ -151,20 +151,30 @@ jobs:
         FEATURES=""
         FIXES=""
         OTHERS=""
-        for COMMIT_HASH in ${{ steps.get-commits.outputs.commits }}
-        do
-          COMMIT_MSG=$(git log --format=%B -n 1 $COMMIT_HASH)
-          echo "- ${COMMIT_MSG}\n"
+        #for COMMIT_HASH in ${{ steps.get-commits.outputs.commits }}
+        #do
+        #  COMMIT_MSG=$(git log --format=%B -n 1 $COMMIT_HASH)
+        #  echo "- ${COMMIT_MSG}\n"
           # Check if commit message starts with 'feat'
-          if [[ $COMMIT_MSG == "feat:"* ]]; then
-            FEATURES+="- ${COMMIT_MSG}\n"
+        #  if [[ $COMMIT_MSG == "feat:"* ]]; then
+        #    FEATURES+="- ${COMMIT_MSG}\n"
           # Check if commit message starts with 'fix'
-          elif [[ $COMMIT_MSG == "fix:"* ]]; then
-            FIXES+="- ${COMMIT_MSG}\n"
+        #  elif [[ $COMMIT_MSG == "fix:"* ]]; then
+        #    FIXES+="- ${COMMIT_MSG}\n"
+        #  else
+        #    OTHERS+="- ${COMMIT_MSG}\n"
+        #  fi
+        #done
+
+        while IFS= read -r line; do
+          if [[ "$line" == *"feat:"* ]]; then
+            FEATURES+="- $line\n"
+          elif [[ "$line" == *"fix:"* ]]; then
+            FIXES+="- $line\n"
           else
-            OTHERS+="- ${COMMIT_MSG}\n"
+            OTHERS+="- $line\n"
           fi
-        done
+        done <<< "${{ steps.get-commits.outputs.commits }}"
         
         # Combine everything into RELEASE_NOTES
         RELEASE_NOTES=""
