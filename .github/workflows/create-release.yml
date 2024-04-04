@@ -155,20 +155,6 @@ jobs:
         FEATURES=""
         FIXES=""
         OTHERS=""
-        #for COMMIT_HASH in ${{ steps.get-commits.outputs.commits }}
-        #do
-        #  COMMIT_MSG=$(git log --format=%B -n 1 $COMMIT_HASH)
-        #  echo "- ${COMMIT_MSG}\n"
-          # Check if commit message starts with 'feat'
-        #  if [[ $COMMIT_MSG == "feat:"* ]]; then
-        #    FEATURES+="- ${COMMIT_MSG}\n"
-          # Check if commit message starts with 'fix'
-        #  elif [[ $COMMIT_MSG == "fix:"* ]]; then
-        #    FIXES+="- ${COMMIT_MSG}\n"
-        #  else
-        #    OTHERS+="- ${COMMIT_MSG}\n"
-        #  fi
-        #done
 
         echo "$commits" | while IFS= read -r line; do
           echo "$line"
@@ -196,6 +182,9 @@ jobs:
         if [ ! -z "$OTHERS" ]; then
           RELEASE_NOTES+="## Others\n$OTHERS\n"
         fi
+        echo "Release notes:"
+        echo $RELEASE_NOTES
+        echo "===="
         
         #echo "::set-output name=release_notes::$RELEASE_NOTES"
         
