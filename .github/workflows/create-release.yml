@@ -170,6 +170,7 @@ jobs:
         #done
 
         echo "$commits" | while IFS= read -r line; do
+          echo "$line"
           if [[ "$line" == *"feat:"* ]]; then
             FEATURES+="- $line\n"
           elif [[ "$line" == *"fix:"* ]]; then
