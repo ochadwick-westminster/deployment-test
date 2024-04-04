@@ -138,8 +138,13 @@ jobs:
       run: |
         #COMMITS=$(git log ${{ steps.last-tag.outputs.tag }}..HEAD --format="%H" -- 'src/Test/AppA/')
         #echo "::set-output name=commits::$COMMITS"
-        COMMITS=$(git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%H")
+        COMMITS=$(git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%H" -- 'src/Test/AppA/')
         echo "::set-output name=commits::$(echo $COMMITS | tr ' ' '\n')"
+
+    - name: List commits since a given tag
+      run: |
+        echo "Commits since tag ${{ steps.last-tag.outputs.tag }}:"
+        git log ${{ steps.last-tag.outputs.tag }}..HEAD --oneline
 
     - name: Generate release notes based on semantic principles
       id: release-notes
