@@ -125,80 +125,52 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Generate Release Notes
-      id: release_notes
-      if: ${{ env.APPA_AFFECTED == 'true' && env.VERSION_CHANGED == 'true'  && env.VERSION_CHANGED == 'false' }}
+    - name: Get last tag for the application
+      id: last-tag
       run: |
-        # Attempt to get the last tag, default to the initial commit if none exist
-        LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo $(git rev-list --max-parents=0 HEAD))
-        echo "Generating release notes from: $LAST_TAG"
-    
-        # Check if LAST_TAG is the initial commit due to lack of tags
-        IS_FIRST_TAG=$(if [ "$LAST_TAG" == "$(git rev-list --max-parents=0 HEAD)" ]; then echo "true"; else echo "false"; fi)
-    
-        # Generate release notes
-        if [ "$IS_FIRST_TAG" == "true" ]; then
-          # Handle the first tag scenario
-          echo "Initial Release" > release_notes.md
-          git log --pretty=format:"- %s" $(git rev-list --max-parents=0 HEAD)..HEAD -- src/Test/AppA/ >> release_notes.md
-        else
-          # Handle subsequent tags
-          git log $LAST_TAG..HEAD --pretty=format:"- %s" -- src/Test/AppA/ > release_notes.md
-        fi
-    
-        # Print release notes for debug purposes
-        cat release_notes.md
-    
-        # Set the release notes in the environment variable
-        #echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
-        #cat release_notes.md >> $GITHUB_ENV
-        #echo "EOF" >> $GITHUB_ENV
+        echo "::set-output name=tag::$(git tag --list 'appA*' --sort=-version:refname | head -n 1)"
+      env:
+        APP_PREFIX: 'appA'
 
-    - name: Generate Formatted Release Notes
-      id: generate_release_notes
-      if: ${{ env.APPA_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
+    - name: Get commits since last tag for the application
+      id: get-commits
       run: |
-        # Enable extended globbing for more complex pattern matching
-        shopt -s extglob
-        
-        # Initialize variables to store categorized commit messages
+        COMMITS=$(git log ${{ steps.last-tag.outputs.tag }}..HEAD --format="%H" -- 'src/Test/AppA/')
+        echo "::set-output name=commits::$COMMITS"
+
+    - name: Generate release notes based on semantic principles
+      id: release-notes
+      run: |
         FEATURES=""
         FIXES=""
-        BREAKING_CHANGES=""
-        echo "1"
-    
-        # Check if the last tag exists and get its hash; otherwise, use the first commit.
-        LAST_TAG_HASH=$(git rev-list -n 1 $(git describe --tags --abbrev=0) 2>/dev/null || git rev-list --max-parents=0 HEAD)
-
-        echo "Start looking at commits"
-        # Loop through each commit affecting 'src/Test/AppA', since the last tag
-        while IFS= read -r COMMIT_HASH; do
-          echo "Processing commit message"
-          # Get the commit message
-          COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s" ${COMMIT_HASH})
-          echo "Commit message: $COMMIT_MESSAGE"
-      
-          # Categorize the commit based on its message
-          if [[ "$COMMIT_MESSAGE" == feat:* ]]; then
-            FEATURES+="\n- ${COMMIT_MESSAGE#*: } (${COMMIT_HASH:0:7})"
-          elif [[ "$COMMIT_MESSAGE" == fix:* ]]; then
-            FIXES+="\n- ${COMMIT_MESSAGE#*: } (${COMMIT_HASH:0:7})"
-          elif [[ "$COMMIT_MESSAGE" =~ BREAKING[[:space:]]CHANGE || "$COMMIT_MESSAGE" =~ \! ]]; then
-            BREAKING_CHANGES+="\n- ${COMMIT_MESSAGE#*: } (${COMMIT_HASH:0:7})"
+        OTHERS=""
+        for COMMIT_HASH in ${{ steps.get-commits.outputs.commits }}
+        do
+          COMMIT_MSG=$(git log --format=%B -n 1 $COMMIT_HASH)
+          # Check if commit message starts with 'feat'
+          if [[ $COMMIT_MSG == "feat:"* ]]; then
+            FEATURES+="- ${COMMIT_MSG}\n"
+          # Check if commit message starts with 'fix'
+          elif [[ $COMMIT_MSG == "fix:"* ]]; then
+            FIXES+="- ${COMMIT_MSG}\n"
+          else
+            OTHERS+="- ${COMMIT_MSG}\n"
           fi
-        done < <(git log ${LAST_TAG_HASH}..HEAD --pretty=format:"%H" -- src/Test/AppA/)
-      
-        # Assemble the release notes
-        RELEASE_NOTES="# Release Notes for AppA\n## Features${FEATURES}\n## Fixes${FIXES}\n## Breaking Changes${BREAKING_CHANGES}"
-      
-        # Save the release notes to a markdown file
-        echo -e "$RELEASE_NOTES" > release_notes.md
-      
-        # Use the GITHUB_OUTPUT for setting formatted release notes as an output variable
-        echo "release_notes<<EOF" >> $GITHUB_OUTPUT
-        echo -e "$RELEASE_NOTES" >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
-      shell: bash
+        done
+        
+        # Combine everything into RELEASE_NOTES
+        RELEASE_NOTES=""
+        if [ ! -z "$FEATURES" ]; then
+          RELEASE_NOTES+="## Features\n$FEATURES\n"
+        fi
+        if [ ! -z "$FIXES" ]; then
+          RELEASE_NOTES+="## Fixes\n$FIXES\n"
+        fi
+        if [ ! -z "$OTHERS" ]; then
+          RELEASE_NOTES+="## Others\n$OTHERS\n"
+        fi
+        
+        echo "::set-output name=release_notes::$RELEASE_NOTES"
 
     - name: Upload Release Notes as Artifact
       if: ${{ env.APPA_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
@@ -230,6 +202,7 @@ jobs:
       with:
         release_name: '${{ steps.calc_version.outputs.next_version }}'
         tag_name: '${{ steps.calc_version.outputs.next_version }}'
-        body_path: artifact-notes/release_notes.md
+        #body_path: artifact-notes/release_notes.md
+        body_path: ${{ steps.release-notes.outputs.release_notes }}
         draft: true
         prerelease: false
