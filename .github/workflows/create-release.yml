@@ -156,13 +156,15 @@ jobs:
     - name: Get commits since last tag for the application
       id: get-commits
       run: |
-        echo "Git log of commits since last tag:"
-        #git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%h %s" -- 'src/Test/AppA/'
-
         last_tag=${{ steps.last-tag.outputs.tag }}
+        
         if [[ $last_tag ]]; then
+          echo "Git log of commits since last tag:"
+          git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%h %s" -- 'src/Test/AppA/'
           commits=$(git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%h %s" -- 'src/Test/AppA/' | base64 -w 0)
         else
+          echo "Git log of commits since last tag:"
+          git log --pretty=format:"%h %s" -- 'src/Test/AppA/'
           commits=$(git log --pretty=format:"%H" -- 'src/Test/AppA/' | base64 -w 0)
         fi
         
