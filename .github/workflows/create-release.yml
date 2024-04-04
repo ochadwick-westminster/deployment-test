@@ -136,11 +136,13 @@ jobs:
     - name: Get commits since last tag for the application
       id: get-commits
       run: |
-        COMMITS=$(git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%H" -- 'src/Test/AppA/')
-        echo "::set-output name=commits::$(echo $COMMITS | tr ' ' '\n')"
-        echo "Commits since tag ${{ steps.last-tag.outputs.tag }}:"
-        git log ${{ steps.last-tag.outputs.tag }}..HEAD --oneline -- 'src/Test/AppA/'
-        echo $COMMITS | tr ' ' '\n'
+        #COMMITS=$(git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%H" -- 'src/Test/AppA/')
+        #echo "::set-output name=commits::$(echo $COMMITS | tr ' ' '\n')"
+        #echo "Commits since tag ${{ steps.last-tag.outputs.tag }}:"
+        #git log ${{ steps.last-tag.outputs.tag }}..HEAD --oneline -- 'src/Test/AppA/'
+        #echo $COMMITS | tr ' ' '\n'
+        commits=$(git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%h %s"  -- 'src/Test/AppA/')
+        echo "::set-output name=commits::$commits"
 
     - name: Generate release notes based on semantic principles
       id: release-notes
