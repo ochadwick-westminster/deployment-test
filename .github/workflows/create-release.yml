@@ -142,7 +142,7 @@ jobs:
         #git log ${{ steps.last-tag.outputs.tag }}..HEAD --oneline -- 'src/Test/AppA/'
         #echo $COMMITS | tr ' ' '\n'
         echo "Git log of commits since last tag:"
-        git log ${{ steps.last-tag.outputs.tag }}..HEAD
+        git log ${{ steps.last-tag.outputs.tag }}..HEAD -- 'src/Test/AppA/'
         commits=$(git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%h %s"  -- 'src/Test/AppA/')
         echo "Outputting commits:"
         echo "::set-output name=commits::$commits"
