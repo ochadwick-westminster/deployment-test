@@ -12,6 +12,12 @@ jobs:
       with:
         fetch-depth: 0 # Important to fetch all history for scripts calculating changes
 
+    - name: Get last tag for the application
+      id: last-tag1
+      run: |
+        echo "tag=$(git tag --list 'appA*' --sort=-version:refname | head -n 1) >> $GITHUB_OUTPUT
+        echo "$tag"
+    
     - name: Determine Changeset for AppA
       id: changeset
       run: |
