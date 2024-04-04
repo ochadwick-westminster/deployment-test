@@ -161,9 +161,9 @@ jobs:
 
         last_tag=${{ steps.last-tag.outputs.tag }}
         if [[ $last_tag ]]; then
-          commits=$(git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%H" -- src/Test/AppA/)
+          commits=$(git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%h %s" -- 'src/Test/AppA/' | base64 -w 0)
         else
-          commits=$(git log --pretty=format:"%H" -- src/Test/AppA/)
+          commits=$(git log --pretty=format:"%H" -- 'src/Test/AppA/' | base64 -w 0)
         fi
         
         #commits=$(git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%h %s"  -- 'src/Test/AppA/' | base64 -w 0)
