@@ -138,7 +138,7 @@ jobs:
       run: |
         echo "Git log of commits since last tag:"
         git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%h %s" -- 'src/Test/AppA/'
-        commits=$(git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%h %s"  -- 'src/Test/AppA/' | base64)
+        commits=$(git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%h %s"  -- 'src/Test/AppA/' | base64 -w 0)
         echo "Outputting commits:"
         echo $commits
         # Use GITHUB_OUTPUT to set the output variable
@@ -152,10 +152,9 @@ jobs:
         # Decode the Base64 encoded commits
         commits=$(echo ${{ steps.get-commits.outputs.commits }} | base64 --decode)
 
-        #RELEASE_NOTES="## Release Notes\n"
-        FEATURES="\n### Features\n"
-        FIXES="\n### Fixes\n"
-        OTHERS="\n### Other\n"
+        FEATURES=""
+        FIXES=""
+        OTHERS=""
 
         echo "$commits" | while IFS= read -r line; do
           echo "$line"
@@ -187,7 +186,7 @@ jobs:
         fi
         
         echo "Release notes:"
-        echo $RELEASE_NOTES
+        echo -e "$RELEASE_NOTES"
         echo "===="
         
         #echo "::set-output name=release_notes::$RELEASE_NOTES"
