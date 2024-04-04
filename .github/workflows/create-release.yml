@@ -148,23 +148,21 @@ jobs:
         FEATURES=""
         FIXES=""
         OTHERS=""
-
-        echo "Processing commits..."
-        echo "${{ steps.get-commits.outputs.commits }}" | while IFS= read -r line; do
-          commit_hash=$(echo "$line" | awk '{print $1}')
-          commit_title=$(echo "$line" | cut -d' ' -f2-)
-          echo "Commit $commit_hash: $commit_title"
-          
-          # Example: Checking if the commit title contains a specific word
-          if [[ $commit_title == "feat:"* ]]; then
-            FEATURES+="- ${commit_title}\n"
+        for COMMIT_HASH in ${{ steps.get-commits.outputs.commits }}
+        do
+          COMMIT_MSG=$(git log --format=%B -n 1 $COMMIT_HASH)
+          echo "- ${COMMIT_MSG}\n"
+          # Check if commit message starts with 'feat'
+          if [[ $COMMIT_MSG == "feat:"* ]]; then
+            FEATURES+="- ${COMMIT_MSG}\n"
           # Check if commit message starts with 'fix'
-          elif [[ $commit_title == "fix:"* ]]; then
-            FIXES+="- ${commit_title}\n"
-          else  
-            OTHERS+="- ${commit_title}\n"
+          elif [[ $COMMIT_MSG == "fix:"* ]]; then
+            FIXES+="- ${COMMIT_MSG}\n"
+          else
+            OTHERS+="- ${COMMIT_MSG}\n"
           fi
         done
+        while read commit
         
         # Combine everything into RELEASE_NOTES
         RELEASE_NOTES=""
@@ -179,10 +177,8 @@ jobs:
         fi
         
         #echo "::set-output name=release_notes::$RELEASE_NOTES"
-
         # Save the release notes to a markdown file
         echo -e "$RELEASE_NOTES" > release_notes.md
-
         # Use the GITHUB_OUTPUT for setting formatted release notes as an output variable
         echo "release_notes<<EOF" >> $GITHUB_OUTPUT
         echo -e "$RELEASE_NOTES" >> $GITHUB_OUTPUT
