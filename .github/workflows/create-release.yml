@@ -21,6 +21,7 @@ jobs:
     - name: Determine Changeset for AppA
       id: changeset
       run: |
+        echo ${{ steps.last-tag1.outputs.tag }}
         # Attempt to get the last tag, defaulting to the initial commit if none exist
         LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo $(git rev-list --max-parents=0 HEAD))
 
