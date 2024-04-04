@@ -180,7 +180,19 @@ jobs:
         echo -e "$RELEASE_NOTES" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
 
-    
+    - name: Upload Release Notes as Artifact
+      if: ${{ env.APPA_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: release-notes
+        path: release_notes.md
+
+    - name: Download Release Notes
+      if: ${{ env.APPA_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
+      uses: actions/download-artifact@v3
+      with:
+        name: release-notes
+        path: artifact-notes    
     
     - name: Create Tag
       if: ${{ env.APPA_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
