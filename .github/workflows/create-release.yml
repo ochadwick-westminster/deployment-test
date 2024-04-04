@@ -128,6 +128,7 @@ jobs:
     - name: Get last tag for the application
       id: last-tag
       run: |
+        echo "$(git tag --list 'appA*' --sort=-version:refname | head -n 1)"
         echo "::set-output name=tag::$(git tag --list 'appA*' --sort=-version:refname | head -n 1)"
       env:
         APP_PREFIX: 'appA'
