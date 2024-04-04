@@ -141,7 +141,8 @@ jobs:
         commits=$(git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%h %s"  -- 'src/Test/AppA/' | base64)
         echo "Outputting commits:"
         echo $commits
-        echo "::set-output name=commits::$commits"
+        # Use GITHUB_OUTPUT to set the output variable
+        echo "commits=$commits" >> $GITHUB_OUTPUT
 
     - name: Generate release notes based on semantic principles
       id: release-notes
