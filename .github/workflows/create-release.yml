@@ -152,7 +152,7 @@ jobs:
         # Decode the Base64 encoded commits
         commits=$(echo ${{ steps.get-commits.outputs.commits }} | base64 --decode)
 
-        RELEASE_NOTES="## Release Notes\n"
+        #RELEASE_NOTES="## Release Notes\n"
         FEATURES="\n### Features\n"
         FIXES="\n### Fixes\n"
         OTHERS="\n### Other\n"
@@ -175,19 +175,16 @@ jobs:
         done
         
         # Combine everything into RELEASE_NOTES
-        #RELEASE_NOTES=""
-        #if [ ! -z "$FEATURES" ]; then
-        #  RELEASE_NOTES+="## Features\n$FEATURES\n"
-        #fi
-        #if [ ! -z "$FIXES" ]; then
-        #  RELEASE_NOTES+="## Fixes\n$FIXES\n"
-        #fi
-        #if [ ! -z "$OTHERS" ]; then
-        #  RELEASE_NOTES+="## Others\n$OTHERS\n"
-        #fi
-
-        # Combine all sections
-        RELEASE_NOTES+="$FEATURES$FIXES$OTHERS"
+        RELEASE_NOTES=""
+        if [ ! -z "$FEATURES" ]; then
+          RELEASE_NOTES+="## Features\n$FEATURES\n"
+        fi
+        if [ ! -z "$FIXES" ]; then
+          RELEASE_NOTES+="## Fixes\n$FIXES\n"
+        fi
+        if [ ! -z "$OTHERS" ]; then
+          RELEASE_NOTES+="## Others\n$OTHERS\n"
+        fi
         
         echo "Release notes:"
         echo $RELEASE_NOTES
