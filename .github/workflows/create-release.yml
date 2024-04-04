@@ -172,12 +172,16 @@ jobs:
         echo "$commits" | while IFS= read -r line; do
           echo "$line"
           if [[ "$line" == *"feat:"* ]]; then
+            echo "Commit is a feature"
             FEATURES+="- $line\n"
           elif [[ "$line" == *"fix:"* ]]; then
+            echo "Commit is a fix"
             FIXES+="- $line\n"
           else
+            echo "Commit is something else"
             OTHERS+="- $line\n"
           fi
+          echo "========"
         done
         
         # Combine everything into RELEASE_NOTES
