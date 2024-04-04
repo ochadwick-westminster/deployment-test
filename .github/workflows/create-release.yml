@@ -138,7 +138,7 @@ jobs:
       run: |
         echo "Git log of commits since last tag:"
         git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%h %s" -- 'src/Test/AppA/'
-        commits=$(git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%h %s"  -- 'src/Test/AppA/')
+        commits=$(git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%h %s"  -- 'src/Test/AppA/' | base64)
         echo "Outputting commits:"
         echo $commits
         echo "::set-output name=commits::$commits"
@@ -147,6 +147,10 @@ jobs:
       id: release-notes
       run: |
         echo ${{ steps.get-commits.outputs.commits }}
+
+        # Decode the Base64 encoded commits
+        commits=$(echo ${{ steps.get-commits.outputs.commits }} | base64 --decode)
+        
         FEATURES=""
         FIXES=""
         OTHERS=""
@@ -165,7 +169,7 @@ jobs:
         #  fi
         #done
 
-        while IFS= read -r line; do
+        echo "$commits" | while IFS= read -r line; do
           if [[ "$line" == *"feat:"* ]]; then
             FEATURES+="- $line\n"
           elif [[ "$line" == *"fix:"* ]]; then
@@ -173,7 +177,7 @@ jobs:
           else
             OTHERS+="- $line\n"
           fi
-        done <<< "${{ steps.get-commits.outputs.commits }}"
+        done
         
         # Combine everything into RELEASE_NOTES
         RELEASE_NOTES=""
