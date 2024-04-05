@@ -13,7 +13,7 @@ jobs:
         fetch-depth: 0 # Important to fetch all history for scripts calculating changes
 
     - name: Get last tag for the application
-      id: last-tag1
+      id: last-tag
       run: |
         echo "tag=$(git tag --list 'appA*' --sort=-version:refname | head -n 1)" >> $GITHUB_OUTPUT
         echo "$tag"
@@ -21,9 +21,9 @@ jobs:
     - name: Determine Changeset for AppA
       id: changeset
       run: |
-        echo ${{ steps.last-tag1.outputs.tag }}
+        echo ${{ steps.last-tag.outputs.tag }}
         # Attempt to get the last tag, defaulting to the initial commit if none exist
-        LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo $(git rev-list --max-parents=0 HEAD))
+        LAST_TAG=$(${{ steps.last-tag.outputs.tag }} || echo $(git rev-list --max-parents=0 HEAD))
 
         # Echo the last tag or initial commit for debugging purposes
         echo "Using base reference: $LAST_TAG"
@@ -146,7 +146,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Get last tag for the application
-      id: last-tag
+      id: last-tag1
       run: |
         echo "$(git tag --list 'appA*' --sort=-version:refname | head -n 1)"
         echo "::set-output name=tag::$(git tag --list 'appA*' --sort=-version:refname | head -n 1)"
