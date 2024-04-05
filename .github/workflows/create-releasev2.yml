@@ -49,6 +49,7 @@ jobs:
         MINOR_INC=0
         PATCH_INC=0
 
+        echo $LAST_TAG
         # Check if the latest tag points to the initial commit (first release scenario)
         if [[ $LAST_TAG == "appA-v0.0.0" ]]; then
           # For the first release, consider all commits for AppA since the beginning of the repository
