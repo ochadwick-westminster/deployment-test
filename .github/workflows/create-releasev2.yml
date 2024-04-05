@@ -6,86 +6,40 @@ on:
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
-
+    env:
+      APP_PATH: 'src/Test/AppA/'
     steps:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0 # Important to fetch all history for scripts calculating changes
 
-    - name: Get last tag for the application
-      id: last-tag
+    - name: Determine Changeset and Version Impact
+      id: prep
       run: |
-        echo "tag=$(git tag --list 'appA*' --sort=-version:refname | head -n 1)" >> $GITHUB_OUTPUT
-        echo "$tag"
-    
-    - name: Determine Changeset for AppA
-      id: changeset
-      run: |
-        #echo ${{ steps.last-tag.outputs.tag }}
-        # Attempt to get the last tag, defaulting to the initial commit if none exist
-        #LAST_TAG=$(${{ steps.last-tag.outputs.tag }} || echo $(git rev-list --max-parents=0 HEAD))
-
-        echo "${{ steps.last-tag.outputs.tag }}"
-        # Use the output from 'steps.last-tag.outputs.tag', if it exists; otherwise, default to the initial commit
-        LAST_TAG="${{ steps.last-tag.outputs.tag }}"
+        LAST_TAG=$(git tag --list 'appA*' --sort=-version:refname | head -n 1)
         if [ -z "$LAST_TAG" ]; then
           LAST_TAG=$(git rev-list --max-parents=0 HEAD)
         fi
+        echo "LAST_TAG=$LAST_TAG" >> $GITHUB_ENV
 
-        # Echo the last tag or initial commit for debugging purposes
-        echo "Using base reference: $LAST_TAG"
-    
-        # List all changed files since the last tag, filtering by those in the AppA or Core directories
-        CHANGED_FILES=$(git diff --name-only $LAST_TAG HEAD | grep -E "src/Test/AppA/" || true)
-        echo "Changed Files: $CHANGED_FILES"
-        
-        # Check if the variable is empty or not
+        CHANGED_FILES=$(git diff --name-only $LAST_TAG HEAD | grep -E "$APP_PATH" || true)
         if [[ -z "$CHANGED_FILES" ]]; then
-          echo "Error: No changed files found in src/Test/AppA/ since the last tag." >&2
           echo "APPA_AFFECTED=false" >> $GITHUB_ENV
           exit 1
         else
           echo "APPA_AFFECTED=true" >> $GITHUB_ENV
-          echo "APPA_AFFECTED=true"
         fi
 
-    - name: Build and Test Application
-      if: env.APP_AFFECTED == 'true'
-      run: |
-        # Insert commands to build and test your .NET application
-        dotnet build ./src/Test/AppA/Test.Api.App.A
-        dotnet test ./src/Test/AppA/tests/Test.Api.App.A.Tests
-
-    - name: Calculate next version for AppA
-      id: calc_version
-      if: env.APPA_AFFECTED == 'true'
-      run: |
+        # Version calculation logic here, setting VERSION_CHANGED as needed
         # Enable case-insensitive matching
         shopt -s nocasematch
-    
-        # Ensure all tags are fetched
-        git fetch --tags
-    
-        # Get the latest version tag for App1
-        LATEST_TAG=$(git tag --list 'appA-*' --sort=-v:refname | head -n 1)
-        if [[ -z "$LATEST_TAG" ]]; then
-          LATEST_TAG="appA-v0.0.0"
-        fi
-        echo "Latest tag: $LATEST_TAG"
-        echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
-    
+
         # Initialize version components from the latest tag
-        #PREFIX=$(echo $LATEST_TAG | grep -o '^[^-]*') # Extract prefix (appA-v)
-        PREFIX=$(echo $LATEST_TAG | grep -oE '^[^-]+-v')
-        echo "Prefix: $PREFIX"
-        VERSION=$(echo $LATEST_TAG | sed -e "s/^$PREFIX//") # Remove prefix
-        echo "Version less prefix: $(echo $LATEST_TAG | sed -e "s/^$PREFIX//")"
+        PREFIX=$(echo $LAST_TAG | grep -oE '^[^-]+-v')
+        VERSION=$(echo $LAST_TAG | sed -e "s/^$PREFIX//") # Remove prefix
         MAJOR=$(echo $VERSION | cut -d '.' -f 1)
-        echo "Major: $(echo $VERSION | cut -d '.' -f 1)"
         MINOR=$(echo $VERSION | cut -d '.' -f 2)
-        echo "Minor: $(echo $VERSION | cut -d '.' -f 2)"
         PATCH=$(echo $VERSION | cut -d '.' -f 3)
-        echo "Patch: $(echo $VERSION | cut -d '.' -f 3)"
     
         # Initialize increment variables
         MAJOR_INC=0
@@ -93,19 +47,18 @@ jobs:
         PATCH_INC=0
 
         # Check if the latest tag points to the initial commit (first release scenario)
-        if [[ $LATEST_TAG == "appA-v0.0.0" ]]; then
+        if [[ $LAST_TAG == "appA-v0.0.0" ]]; then
           # For the first release, consider all commits for AppA since the beginning of the repository
           echo "First release"
           COMMIT_IDS=$(git log --pretty=format:"%H" -- src/Test/AppA/)
         else
           echo "not first release"
           # For subsequent releases, only consider commits since the latest tag
-          COMMIT_IDS=$(git log $LATEST_TAG..HEAD --pretty=format:"%H" -- src/Test/AppA/)
+          COMMIT_IDS=$(git log $LAST_TAG..HEAD --pretty=format:"%H" -- src/Test/AppA/)
         fi
 
-    
         # Use git diff to analyze commits for version bump, filtering by appA directory
-        #COMMIT_IDS=$(git log $LATEST_TAG..HEAD --pretty=format:"%H")
+        #COMMIT_IDS=$(git log $LAST_TAG..HEAD --pretty=format:"%H")
         
         for COMMIT_ID in $COMMIT_IDS
         do
@@ -141,9 +94,9 @@ jobs:
     
         NEXT_VERSION="$PREFIX$MAJOR.$MINOR.$PATCH"
         echo "Next version: $NEXT_VERSION"
-        echo "next_version=$NEXT_VERSION" >> $GITHUB_OUTPUT
+        echo "NEXT_VERSION=$NEXT_VERSION" >> $GITHUB_ENV
         
-        if [[ "$NEXT_VERSION" == "$LATEST_TAG" ]]; then
+        if [[ "$NEXT_VERSION" == "$LAST_TAG" ]]; then
           echo "VERSION_CHANGED=false" >> $GITHUB_ENV
           echo "VERSION_CHANGED=false"
         else
@@ -153,13 +106,12 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Get last tag for the application
-      id: last-tag1
+    - name: Build and Test Application
+      if: env.APP_AFFECTED == 'true'
       run: |
-        echo "$(git tag --list 'appA*' --sort=-version:refname | head -n 1)"
-        echo "::set-output name=tag::$(git tag --list 'appA*' --sort=-version:refname | head -n 1)"
-      env:
-        APP_PREFIX: 'appA'
+        # Insert commands to build and test your .NET application
+        dotnet build ./src/Test/AppA/Test.Api.App.A
+        dotnet test ./src/Test/AppA/tests/Test.Api.App.A.Tests
 
     - name: Get commits since last tag for the application
       id: get-commits
@@ -233,31 +185,22 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: release-notes
-        path: release_notes.md
+        path: release_notes.md 
 
-    - name: Download Release Notes
-      if: ${{ env.APPA_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
-      uses: actions/download-artifact@v3
-      with:
-        name: release-notes
-        path: artifact-notes    
-    
-    - name: Create Tag
-      if: ${{ env.APPA_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
-      run: git tag ${{ steps.calc_version.outputs.next_version }}
-    
-    - name: Publish tags
-      if: ${{ env.APPA_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
-      run: git push --tags
-      
+    - name: Create and Publish Tag
+      if: env.APPA_AFFECTED == 'true' && env.VERSION_CHANGED == 'true'
+      run: |
+        git tag $NEXT_VERSION
+        git push --tags
+        
     - name: Create Release for AppA
       if: ${{ env.APPA_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        release_name: '${{ steps.calc_version.outputs.next_version }}'
-        tag_name: '${{ steps.calc_version.outputs.next_version }}'
-        body_path: artifact-notes/release_notes.md
+        release_name: '${{ env.NEXT_VERSION }}'
+        tag_name: '${{ env.NEXT_VERSION }}'
+        body_path: release_notes.md
         draft: true
         prerelease: false
