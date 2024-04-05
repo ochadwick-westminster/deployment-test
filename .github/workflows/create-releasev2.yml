@@ -39,6 +39,11 @@ jobs:
         shopt -s nocasematch
 
         echo $LAST_TAG
+
+        if [[ $LAST_TAG != appA-v* ]]; then
+          echo "LAST_TAG=appA-v0.0.0" >> $GITHUB_ENV
+        fi
+        
         # Initialize version components from the latest tag
         PREFIX=$(echo $LAST_TAG | grep -oE '^[^-]+-v')
         VERSION=$(echo $LAST_TAG | sed -e "s/^$PREFIX//") # Remove prefix
