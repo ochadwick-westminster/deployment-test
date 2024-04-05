@@ -1,0 +1,29 @@
+name: "Conventional Commits Check"
+
+on:
+  pull_request:
+
+jobs:
+  commitlint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # This is necessary to fetch all the commits for the PR
+
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install commitlint
+        run: |
+          npm install --save-dev @commitlint/{config-conventional,cli}
+          echo "module.exports = {extends: ['@commitlint/config-conventional']};" > commitlint.config.js
+
+      - name: Lint commit messages
+        uses: wagoid/commitlint-github-action@v4
+        with:
+          # This option makes the action lint all the commit messages from the PR
+          firstParent: true
