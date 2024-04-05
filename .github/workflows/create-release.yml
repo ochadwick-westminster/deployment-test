@@ -85,7 +85,7 @@ jobs:
         PATCH_INC=0
 
         # Check if the latest tag points to the initial commit (first release scenario)
-        if [[ $LATEST_TAG="appA-v0.0.0" ]]; then
+        if [[ $LATEST_TAG == "appA-v0.0.0" ]]; then
           # For the first release, consider all commits for AppA since the beginning of the repository
           echo "First release"
           COMMIT_IDS=$(git log --pretty=format:"%H" -- src/Test/AppA/)
