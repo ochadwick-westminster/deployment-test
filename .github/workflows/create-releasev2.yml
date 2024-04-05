@@ -117,9 +117,9 @@ jobs:
     - name: Get commits since last tag for the application
       id: get-commits
       run: |
-        echo {{ env.$LAST_TAG }}
-        if [[ env.$LAST_TAG ]]; then
-          commits=$(git log ${{ env.$LAST_TAG }}..HEAD --pretty=format:"%h %s" -- 'src/Test/AppA/' | base64 -w 0)
+        echo $LAST_TAG
+        if [[ -n "$LAST_TAG" ]]; then
+          commits=$(git log ${LAST_TAG}..HEAD --pretty=format:"%h %s" -- 'src/Test/AppA/' | base64 -w 0)
         else
           commits=$(git log --pretty=format:"%h %s" -- 'src/Test/AppA/' | base64 -w 0)
         fi
