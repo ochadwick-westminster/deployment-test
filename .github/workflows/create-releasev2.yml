@@ -29,13 +29,14 @@ jobs:
         echo "Using base reference: $LAST_TAG"
     
         # List all changed files since the last tag, filtering by those in the AppA or Core directories
-        CHANGED_FILES=$(git diff --name-only $LAST_TAG HEAD | grep -E "src/Test/AppA/")
+        CHANGED_FILES=$(git diff --name-only $LAST_TAG HEAD | grep -E "src/Test/AppA/" || true)
         echo "Changed Files: $CHANGED_FILES"
         
         # Check if the variable is empty or not
         if [[ -z "$CHANGED_FILES" ]]; then
+          echo "Error: No changed files found in src/Test/AppA/ since the last tag." >&2
           echo "APPA_AFFECTED=false" >> $GITHUB_ENV
-          echo "APPA_AFFECTED=false"
+          exit 1
         else
           echo "APPA_AFFECTED=true" >> $GITHUB_ENV
           echo "APPA_AFFECTED=true"
