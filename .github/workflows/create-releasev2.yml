@@ -1,0 +1,255 @@
+name: Release .NET Application AppA
+
+on:
+  workflow_dispatch
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0 # Important to fetch all history for scripts calculating changes
+
+    - name: Get last tag for the application
+      id: last-tag1
+      run: |
+        echo "tag=$(git tag --list 'appA*' --sort=-version:refname | head -n 1)" >> $GITHUB_OUTPUT
+        echo "$tag"
+    
+    - name: Determine Changeset for AppA
+      id: changeset
+      run: |
+        echo ${{ steps.last-tag1.outputs.tag }}
+        # Attempt to get the last tag, defaulting to the initial commit if none exist
+        LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo $(git rev-list --max-parents=0 HEAD))
+
+        # Echo the last tag or initial commit for debugging purposes
+        echo "Using base reference: $LAST_TAG"
+    
+        # List all changed files since the last tag, filtering by those in the AppA or Core directories
+        CHANGED_FILES=$(git diff --name-only $LAST_TAG HEAD | grep -E "src/Test/AppA/")
+        echo "Changed Files: $CHANGED_FILES"
+        
+        # Check if the variable is empty or not
+        if [[ -z "$CHANGED_FILES" ]]; then
+          echo "APPA_AFFECTED=false" >> $GITHUB_ENV
+          echo "APPA_AFFECTED=false"
+        else
+          echo "APPA_AFFECTED=true" >> $GITHUB_ENV
+          echo "APPA_AFFECTED=true"
+        fi
+
+    - name: Build and Test Application
+      if: env.APP_AFFECTED == 'true'
+      run: |
+        # Insert commands to build and test your .NET application
+        dotnet build ./src/Test/AppA/Test.Api.App.A
+        dotnet test ./src/Test/AppA/tests/Test.Api.App.A.Tests
+
+    - name: Calculate next version for AppA
+      id: calc_version
+      if: env.APPA_AFFECTED == 'true'
+      run: |
+        # Enable case-insensitive matching
+        shopt -s nocasematch
+    
+        # Ensure all tags are fetched
+        git fetch --tags
+    
+        # Get the latest version tag for App1
+        LATEST_TAG=$(git tag --list 'appA-*' --sort=-v:refname | head -n 1)
+        if [[ -z "$LATEST_TAG" ]]; then
+          LATEST_TAG="appA-v0.0.0"
+        fi
+        echo "Latest tag: $LATEST_TAG"
+        echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
+    
+        # Initialize version components from the latest tag
+        #PREFIX=$(echo $LATEST_TAG | grep -o '^[^-]*') # Extract prefix (appA-v)
+        PREFIX=$(echo $LATEST_TAG | grep -oE '^[^-]+-v')
+        echo "Prefix: $PREFIX"
+        VERSION=$(echo $LATEST_TAG | sed -e "s/^$PREFIX//") # Remove prefix
+        echo "Version less prefix: $(echo $LATEST_TAG | sed -e "s/^$PREFIX//")"
+        MAJOR=$(echo $VERSION | cut -d '.' -f 1)
+        echo "Major: $(echo $VERSION | cut -d '.' -f 1)"
+        MINOR=$(echo $VERSION | cut -d '.' -f 2)
+        echo "Minor: $(echo $VERSION | cut -d '.' -f 2)"
+        PATCH=$(echo $VERSION | cut -d '.' -f 3)
+        echo "Patch: $(echo $VERSION | cut -d '.' -f 3)"
+    
+        # Initialize increment variables
+        MAJOR_INC=0
+        MINOR_INC=0
+        PATCH_INC=0
+
+        # Check if the latest tag points to the initial commit (first release scenario)
+        if [[ $LATEST_TAG == "appA-v0.0.0" ]]; then
+          # For the first release, consider all commits for AppA since the beginning of the repository
+          echo "First release"
+          COMMIT_IDS=$(git log --pretty=format:"%H" -- src/Test/AppA/)
+        else
+          echo "not first release"
+          # For subsequent releases, only consider commits since the latest tag
+          COMMIT_IDS=$(git log $LATEST_TAG..HEAD --pretty=format:"%H" -- src/Test/AppA/)
+        fi
+
+    
+        # Use git diff to analyze commits for version bump, filtering by appA directory
+        #COMMIT_IDS=$(git log $LATEST_TAG..HEAD --pretty=format:"%H")
+        
+        for COMMIT_ID in $COMMIT_IDS
+        do
+          # Check if the commit affects the appA directory
+          if git diff --name-only $COMMIT_ID^! | grep -q 'src/Test/AppA/'; then
+            #COMMIT_MSG=$(git log -1 --pretty=format:"%s" $COMMIT_ID)
+            COMMIT_MSG=$(git log -1 --pretty=format:"%s" $COMMIT_ID)
+            if [[ "$COMMIT_MSG" =~ BREAKING[[:space:]]CHANGE: ]]; then
+              MAJOR_INC=1
+              break # Stop processing further commits as major version increment is required
+            elif [[ "$COMMIT_MSG" =~ ^feat: ]]; then
+              MINOR_INC=1
+            elif [[ "$COMMIT_MSG" =~ ^fix: ]]; then
+              PATCH_INC=1
+            fi
+          fi
+        done
+
+        # Disable case-insensitive matching after use
+        shopt -u nocasematch
+    
+        # Calculate next version based on increments
+        if [[ $MAJOR_INC -eq 1 ]]; then
+          MAJOR=$(($MAJOR + 1))
+          MINOR=0
+          PATCH=0
+        elif [[ $MINOR_INC -eq 1 ]]; then
+          MINOR=$(($MINOR + 1))
+          PATCH=0
+        elif [[ $PATCH_INC -eq 1 ]]; then
+          PATCH=$(($PATCH + 1))
+        fi
+    
+        NEXT_VERSION="$PREFIX$MAJOR.$MINOR.$PATCH"
+        echo "Next version: $NEXT_VERSION"
+        echo "next_version=$NEXT_VERSION" >> $GITHUB_OUTPUT
+        
+        if [[ "$NEXT_VERSION" == "$LATEST_TAG" ]]; then
+          echo "VERSION_CHANGED=false" >> $GITHUB_ENV
+          echo "VERSION_CHANGED=false"
+        else
+          echo "VERSION_CHANGED=true" >> $GITHUB_ENV
+          echo "VERSION_CHANGED=true"
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Get last tag for the application
+      id: last-tag
+      run: |
+        echo "$(git tag --list 'appA*' --sort=-version:refname | head -n 1)"
+        echo "::set-output name=tag::$(git tag --list 'appA*' --sort=-version:refname | head -n 1)"
+      env:
+        APP_PREFIX: 'appA'
+
+    - name: Get commits since last tag for the application
+      id: get-commits
+      run: |
+        last_tag=${{ steps.last-tag.outputs.tag }}
+        
+        if [[ $last_tag ]]; then
+          commits=$(git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%h %s" -- 'src/Test/AppA/' | base64 -w 0)
+        else
+          commits=$(git log --pretty=format:"%h %s" -- 'src/Test/AppA/' | base64 -w 0)
+        fi
+        
+        #commits=$(git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%h %s"  -- 'src/Test/AppA/' | base64 -w 0)
+        
+        echo "Outputting commits:"
+        echo $commits
+        # Use GITHUB_OUTPUT to set the output variable
+        echo "commits=$commits" >> $GITHUB_OUTPUT
+
+    - name: Generate release notes based on semantic principles
+      id: release-notes
+      run: |
+        echo ${{ steps.get-commits.outputs.commits }}
+
+        # Decode the Base64 encoded commits
+        commits=$(echo ${{ steps.get-commits.outputs.commits }} | base64 --decode)
+
+        echo "Generating release notes..."
+        RELEASE_NOTES="## Release Notes"
+        FIXES=""
+        OTHERS=""
+        FEATURES=""
+
+        while IFS= read -r line; do
+          if [[ "$line" == *"feat:"* ]]; then
+            #FEATURES+="- $line\n"
+            FEATURES+="- $(echo $line | cut -d ' ' -f3-)\n"
+          elif [[ "$line" == *"fix:"* ]]; then
+            FIXES+="- $line\n"
+          else
+            OTHERS+="- $line\n"
+          fi
+        done < <(echo "$commits")
+        
+        if [[ $FEATURES ]]; then
+          RELEASE_NOTES+="\n\n### Features\n$FEATURES"
+        fi
+        if [[ $FIXES ]]; then
+          RELEASE_NOTES+="\n\n### Fixes\n$FIXES"
+        fi
+        if [[ $OTHERS ]]; then
+          RELEASE_NOTES+="\n\n### Others\n$OTHERS"
+        fi
+        
+        echo "Release notes:"
+        echo -e "$RELEASE_NOTES"
+        echo "===="
+        
+        #echo "::set-output name=release_notes::$RELEASE_NOTES"
+        
+        # Save the release notes to a markdown file
+        echo -e "$RELEASE_NOTES" > release_notes.md
+        
+        # Use the GITHUB_OUTPUT for setting formatted release notes as an output variable
+        echo "release_notes<<EOF" >> $GITHUB_OUTPUT
+        echo -e "$RELEASE_NOTES" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+
+    - name: Upload Release Notes as Artifact
+      if: ${{ env.APPA_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: release-notes
+        path: release_notes.md
+
+    - name: Download Release Notes
+      if: ${{ env.APPA_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
+      uses: actions/download-artifact@v3
+      with:
+        name: release-notes
+        path: artifact-notes    
+    
+    - name: Create Tag
+      if: ${{ env.APPA_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
+      run: git tag ${{ steps.calc_version.outputs.next_version }}
+    
+    - name: Publish tags
+      if: ${{ env.APPA_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
+      run: git push --tags
+      
+    - name: Create Release for AppA
+      if: ${{ env.APPA_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        release_name: '${{ steps.calc_version.outputs.next_version }}'
+        tag_name: '${{ steps.calc_version.outputs.next_version }}'
+        body_path: artifact-notes/release_notes.md
+        draft: true
+        prerelease: false
