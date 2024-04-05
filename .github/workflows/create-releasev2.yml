@@ -23,6 +23,7 @@ jobs:
         echo "LAST_TAG=$LAST_TAG" >> $GITHUB_ENV
 
         CHANGED_FILES=$(git diff --name-only $LAST_TAG HEAD | grep -E "$APP_PATH" || true)
+        echo "Changed Files: $CHANGED_FILES"
         if [[ -z "$CHANGED_FILES" ]]; then
           echo "APPA_AFFECTED=false" >> $GITHUB_ENV
           exit 1
@@ -116,15 +117,12 @@ jobs:
     - name: Get commits since last tag for the application
       id: get-commits
       run: |
-        last_tag=${{ steps.last-tag.outputs.tag }}
-        
-        if [[ $last_tag ]]; then
-          commits=$(git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%h %s" -- 'src/Test/AppA/' | base64 -w 0)
+        echo {{ env.$LAST_TAG }}
+        if [[ env.$LAST_TAG ]]; then
+          commits=$(git log ${{ env.$LAST_TAG }}..HEAD --pretty=format:"%h %s" -- 'src/Test/AppA/' | base64 -w 0)
         else
           commits=$(git log --pretty=format:"%h %s" -- 'src/Test/AppA/' | base64 -w 0)
         fi
-        
-        #commits=$(git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%h %s"  -- 'src/Test/AppA/' | base64 -w 0)
         
         echo "Outputting commits:"
         echo $commits
