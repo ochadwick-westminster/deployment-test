@@ -25,9 +25,11 @@ jobs:
         CHANGED_FILES=$(git diff --name-only $LAST_TAG HEAD | grep -E "$APP_PATH" || true)
         echo "Changed Files: $CHANGED_FILES"
         if [[ -z "$CHANGED_FILES" ]]; then
+          echo "APPA_AFFECTED=false"
           echo "APPA_AFFECTED=false" >> $GITHUB_ENV
           exit 1
         else
+          echo "APPA_AFFECTED=true"
           echo "APPA_AFFECTED=true" >> $GITHUB_ENV
         fi
 
