@@ -21,6 +21,7 @@ jobs:
           LAST_TAG=$(git rev-list --max-parents=0 HEAD)
         fi
         echo "LAST_TAG=$LAST_TAG" >> $GITHUB_ENV
+        echo $LAST_TAG
 
         CHANGED_FILES=$(git diff --name-only $LAST_TAG HEAD | grep -E "$APP_PATH" || true)
         echo "Changed Files: $CHANGED_FILES"
@@ -37,6 +38,7 @@ jobs:
         # Enable case-insensitive matching
         shopt -s nocasematch
 
+        echo $LAST_TAG
         # Initialize version components from the latest tag
         PREFIX=$(echo $LAST_TAG | grep -oE '^[^-]+-v')
         VERSION=$(echo $LAST_TAG | sed -e "s/^$PREFIX//") # Remove prefix
