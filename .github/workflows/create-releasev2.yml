@@ -141,7 +141,9 @@ jobs:
       id: get-commits
       run: |
         echo $LAST_TAG
-        commits=$(git log $LAST_TAG..HEAD --pretty=format:"%B" -- $APP_PATH $CORE_PATH | base64 -w 0)
+        echo "Commits:"
+        echo $(git log $LAST_TAG..HEAD --no-merges --pretty=format:"%B" -- $APP_PATH $CORE_PATH | base64 -w 0)
+        commits=$(git log $LAST_TAG..HEAD --no-merges --pretty=format:"%B" -- $APP_PATH $CORE_PATH | base64 -w 0)
         
         echo "Outputting commits:"
         echo $commits
@@ -164,8 +166,6 @@ jobs:
         FEATURES=""
 
         while IFS= read -r commit; do
-          echo "Commit:"
-          echo $commit
           if [[ "$commit" =~ ^feat: ]]; then
             if [[ "$commit" =~ BREAKING[[:space:]]CHANGE: ]] || [[ "$commit" =~ ^[a-z]+!: ]]; then
               FEATURES+="- (BREAKING CHANGE) $(echo $commit | cut -d ' ' -f3-)\n"
