@@ -141,7 +141,7 @@ jobs:
       id: get-commits
       run: |
         echo $LAST_TAG
-        commits=$(git log $LAST_TAG..HEAD --pretty=format:"%B" -- $APP_PATH $CORE_PATH | base64 -w 0)
+        commits=$(git log $LAST_TAG..HEAD --pretty=format:"%h %s" -- $APP_PATH $CORE_PATH | base64 -w 0)
         
         echo "Outputting commits:"
         echo $commits
@@ -177,8 +177,7 @@ jobs:
               FIXES+="- $(echo $commit | cut -d ' ' -f3-)\n"
             fi
           else
-            commit_message=$(echo "$commit" | cut -d ' ' -f2-)
-            OTHERS+="- $commit_message\n"
+            OTHERS+="- $(echo $commit | cut -d ' ' -f3-)\n"
           fi
         done < <(echo "$commits")       
         
