@@ -177,10 +177,8 @@ jobs:
               FIXES+="- $(echo $commit | cut -d ' ' -f3-)\n"
             fi
           else
-            commit_title=$(echo "$commit" | head -n 1) # Extract the first line as the commit title
-            if [[ -n "$commit_title" ]]; then  # Check if the title is non-empty
-              OTHERS+="- $commit_title\n"  # Append the title with a newline
-            fi
+            commit_message=$(echo "$commit" | cut -d ' ' -f2-)
+            OTHERS+="- $commit_message\n"
           fi
         done < <(echo "$commits")       
         
