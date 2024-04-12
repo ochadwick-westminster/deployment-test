@@ -36,9 +36,8 @@ jobs:
         fetch-depth: 0 # Important to fetch all history for scripts calculating changes
 
     - name: Determine Changeset and Version Impact
-      id: prep
+      id: assess-changes
       run: |
-        #LAST_TAG=$(git tag --list 'appA*' --sort=-version:refname | head -n 1)
         LAST_TAG=$(git tag --list | grep -i '^${{ inputs.APP_NAME }}' | sort --version-sort --reverse | head -n 1)
         if [ -z "$LAST_TAG" ]; then
           LAST_TAG=$(git rev-list --max-parents=0 HEAD)
@@ -76,7 +75,7 @@ jobs:
         MINOR_INC=0
         PATCH_INC=0
 
-        # Use git diff to analyze commits for version bump, filtering by appA and core directories
+        # Use git diff to analyze commits for version bump, filtering by app and core directories
         COMMIT_IDS=$(git log $LAST_TAG..HEAD --pretty=format:"%H" -- $APP_PATH $CORE_PATH)
 
         for COMMIT_ID in $COMMIT_IDS
@@ -122,21 +121,18 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build and Test Application
-      if: env.APP_AFFECTED == 'true'
+      if: ${{ env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
       run: |
         # Insert commands to build and test your .NET application
-        dotnet build ./src/Test/AppA/Test.Api.App.A
-        dotnet test ./src/Test/AppA/tests/Test.Api.App.A.Tests
+        dotnet build ./$APP_PATH/Test.Api.App.A
+        dotnet test ./$APP_PATH/tests/Test.Api.App.A.Tests
 
     - name: Get commits since last tag for the application
+      if: ${{ env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
       id: get-commits
       run: |
         echo $LAST_TAG
-        if [[ -n "$LAST_TAG" ]]; then
-          commits=$(git log ${LAST_TAG}..HEAD --pretty=format:"%h %s" -- 'src/Test/AppA/' | base64 -w 0)
-        else
-          commits=$(git log --pretty=format:"%h %s" -- 'src/Test/AppA/' | base64 -w 0)
-        fi
+        commits=$(git log $LAST_TAG..HEAD --pretty=format:"%H %s" -- $APP_PATH $CORE_PATH | base64 -w 0)
         
         echo "Outputting commits:"
         echo $commits
@@ -144,6 +140,7 @@ jobs:
         echo "commits=$commits" >> $GITHUB_OUTPUT
 
     - name: Generate release notes based on semantic principles
+      if: ${{ env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
       id: release-notes
       run: |
         echo ${{ steps.get-commits.outputs.commits }}
@@ -191,20 +188,20 @@ jobs:
         echo "EOF" >> $GITHUB_OUTPUT
 
     - name: Upload Release Notes as Artifact
-      if: ${{ env.APPA_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
+      if: ${{ env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
       uses: actions/upload-artifact@v4
       with:
         name: release-notes
         path: release_notes.md 
 
     - name: Create and Publish Tag
-      if: env.APPA_AFFECTED == 'true' && env.VERSION_CHANGED == 'true'
+      if: env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true'
       run: |
         git tag $NEXT_VERSION
         git push --tags
         
-    - name: Create Release for AppA
-      if: ${{ env.APPA_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
+    - name: Create Release for App
+      if: ${{ env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
       uses: softprops/action-gh-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
