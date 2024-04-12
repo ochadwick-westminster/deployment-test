@@ -62,13 +62,19 @@ jobs:
         # Version calculation logic here, setting VERSION_CHANGED as needed
         # Enable case-insensitive matching
         shopt -s nocasematch
-        
-        # Initialize version components from the latest tag
-        PREFIX=$(echo $LAST_TAG | grep -oE '^[^-]+-v')
-        VERSION=$(echo $LAST_TAG | sed -e "s/^$PREFIX//") # Remove prefix
-        MAJOR=$(echo $VERSION | cut -d '.' -f 1)
-        MINOR=$(echo $VERSION | cut -d '.' -f 2)
-        PATCH=$(echo $VERSION | cut -d '.' -f 3)
+
+        if [[ $LAST_TAG =~ ^[0-9a-f]{5,40}$ ]]; then
+          echo "No version tag found, using initial commit as LAST_TAG."
+          MAJOR=1
+          MINOR=0
+          PATCH=0
+        else
+          PREFIX=$(echo $LAST_TAG | grep -oE '^[^-]+-v')
+          VERSION=$(echo $LAST_TAG | sed -e "s/^$PREFIX//")  # Remove prefix
+          MAJOR=$(echo $VERSION | cut -d '.' -f 1)
+          MINOR=$(echo $VERSION | cut -d '.' -f 2)
+          PATCH=$(echo $VERSION | cut -d '.' -f 3)
+        fi
     
         # Initialize increment variables
         MAJOR_INC=0
