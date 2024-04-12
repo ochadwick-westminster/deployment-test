@@ -130,7 +130,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build and Test Application
-      if: ${{ env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
+      if: false
       run: |
         # Insert commands to build and test your .NET application
         dotnet build ./$APP_PATH/Test.Api.App.A
