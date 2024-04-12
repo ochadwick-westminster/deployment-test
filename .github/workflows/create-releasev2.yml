@@ -89,13 +89,14 @@ jobs:
         for COMMIT_ID in $COMMIT_IDS
         do
           if git diff --name-only $COMMIT_ID^! | grep -q -E "$APP_PATH|$CORE_PATH"; then
-            COMMIT_MSG=$(git log -1 --pretty=format:"%s" $COMMIT_ID)
-            if [[ "$COMMIT_MSG" =~ BREAKING[[:space:]]CHANGE: ]]; then
+            COMMIT_MSG=$(git log -1 --pretty=format:"%B" $COMMIT_ID)
+            # Check for breaking changes in footer or with '!' in type
+            if [[ "$COMMIT_MSG" =~ BREAKING[[:space:]]CHANGE: ]] || [[ "$COMMIT_MSG" =~ ^[a-z]+![:]: ]]; then
               MAJOR_INC=1
               break # Major version increment is the highest, stop further analysis
-            elif [[ "$COMMIT_MSG" =~ ^feat: ]]; then
+            elif [[ "$COMMIT_MSG" =~ ^feat[:]: ]]; then
               MINOR_INC=1
-            elif [[ "$COMMIT_MSG" =~ ^fix: ]]; then
+            elif [[ "$COMMIT_MSG" =~ ^fix[:]: ]]; then
               PATCH_INC=1
             fi
           fi
@@ -140,7 +141,7 @@ jobs:
       id: get-commits
       run: |
         echo $LAST_TAG
-        commits=$(git log $LAST_TAG..HEAD --pretty=format:"%H %s" -- $APP_PATH $CORE_PATH | base64 -w 0)
+        commits=$(git log $LAST_TAG..HEAD --pretty=format:"%B" -- $APP_PATH $CORE_PATH | base64 -w 0)
         
         echo "Outputting commits:"
         echo $commits
@@ -162,15 +163,23 @@ jobs:
         OTHERS=""
         FEATURES=""
 
-        while IFS= read -r line; do
-          if [[ "$line" == *"feat:"* ]]; then
-            FEATURES+="- $(echo $line | cut -d ' ' -f3-)\n"
-          elif [[ "$line" == *"fix:"* ]]; then
-            FIXES+="- $(echo $line | cut -d ' ' -f3-)\n"
+        while IFS= read -r commit; do
+          if [[ "$commit" =~ ^feat[:]: ]]; then
+            if [[ "$commit" =~ BREAKING[[:space:]]CHANGE: ]] || [[ "$commit" =~ ^[a-z]+![:]: ]]; then
+              FEATURES+="- (BREAKING CHANGE) $(echo $commit | cut -d ' ' -f3-)\n"
+            else
+              FEATURES+="- $(echo $commit | cut -d ' ' -f3-)\n"
+            fi
+          elif [[ "$commit" == *"fix:"* ]]; then
+            if [[ "$commit" =~ BREAKING[[:space:]]CHANGE: ]] || [[ "$commit" =~ ^[a-z]+![:]: ]]; then
+              FIXES+="- (BREAKING CHANGE) $(echo $commit | cut -d ' ' -f3-)\n"
+            else
+              FIXES+="- $(echo $commit | cut -d ' ' -f3-)\n"
+            fi
           else
-            OTHERS+="- $(echo $line | cut -d ' ' -f3-)\n"
+            OTHERS+="- $(echo $commit | cut -d ' ' -f3-)\n"
           fi
-        done < <(echo "$commits")
+        done < <(echo "$commits")       
         
         if [[ $FEATURES ]]; then
           RELEASE_NOTES+="\n\n### Features\n$FEATURES"
