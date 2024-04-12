@@ -141,9 +141,18 @@ jobs:
       id: get-commits
       run: |
         echo $LAST_TAG
-        echo "Commits:"
-        echo $(git log $LAST_TAG..HEAD --no-merges --pretty=format:"%B" -- $APP_PATH $CORE_PATH)
+        
         commits=$(git log $LAST_TAG..HEAD --no-merges --pretty=format:"%B" -- $APP_PATH $CORE_PATH | base64 -w 0)
+
+        echo "Commits:"
+        IFS=$'\n' read -r -d '' -a commit_array <<< "$commits"
+
+        # Iterate through each commit and extract the first line
+        for full_commit in "${commit_array[@]}"; do
+            # Extract the first line of each commit message
+            commit_title=$(echo "$full_commit" | head -n 1)
+            echo "$commit_title"
+        done
         
         echo "Outputting commits:"
         echo $commits
