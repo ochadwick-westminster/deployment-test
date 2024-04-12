@@ -142,7 +142,7 @@ jobs:
       run: |
         echo $LAST_TAG
         echo "Commits:"
-        echo $(git log $LAST_TAG..HEAD --no-merges --pretty=format:"%B" -- $APP_PATH $CORE_PATH | base64 -w 0)
+        echo $(git log $LAST_TAG..HEAD --no-merges --pretty=format:"%B" -- $APP_PATH $CORE_PATH)
         commits=$(git log $LAST_TAG..HEAD --no-merges --pretty=format:"%B" -- $APP_PATH $CORE_PATH | base64 -w 0)
         
         echo "Outputting commits:"
