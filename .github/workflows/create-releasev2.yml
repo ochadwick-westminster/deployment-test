@@ -75,8 +75,10 @@ jobs:
         MINOR_INC=0
         PATCH_INC=0
 
+        echo "COMMIT_IDS:"
         # Use git diff to analyze commits for version bump, filtering by app and core directories
         COMMIT_IDS=$(git log $LAST_TAG..HEAD --pretty=format:"%H" -- $APP_PATH $CORE_PATH)
+        echo $COMMIT_IDS
 
         for COMMIT_ID in $COMMIT_IDS
         do
