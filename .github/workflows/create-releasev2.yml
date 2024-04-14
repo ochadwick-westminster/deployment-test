@@ -195,8 +195,7 @@ jobs:
           elif [[ "$commit_title" =~ ^fix ]]; then
             FIXES+="- $(echo $commit_message | cut -d ' ' -f2-)\n"
           else
-            OTHERS+=$commit_message
-            "- $commit_message\n"
+            OTHERS+="- $commit_message\n"
           fi
         done < <(echo "$commits" | sed '/^$/d')
 
