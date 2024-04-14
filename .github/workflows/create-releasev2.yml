@@ -167,6 +167,11 @@ jobs:
         FEATURES=""
 
         while IFS= read -r commit; do
+          commit=$(echo $commit | tr -d '\n')
+          if [[ -z "$commit" ]]; then
+            continue
+          fi
+  
           if [[ "$commit" =~ ^fezat: ]]; then
             if [[ "$commit" =~ BREAKING[[:space:]]CHANGE: ]] || [[ "$commit" =~ ^[a-z]+!: ]]; then
               FEATURES+="- (BREAKING CHANGE) $(echo $commit | cut -d ' ' -f2-)\n"
