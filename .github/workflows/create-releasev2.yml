@@ -134,7 +134,7 @@ jobs:
       run: |
         # Insert commands to build and test your .NET application
         dotnet build ./$APP_PATH/Test.Api.App.A --configuration Release
-        dotnet test ./$APP_PATH/tests/Test.Api.App.A.Tests --no-build
+        dotnet test ./$APP_PATH/tests/Test.Api.App.A.Tests
 
     - name: Publish the application
       run: dotnet publish ./$APP_PATH/Test.Api.App.A -c Release -o ./$APP_PATH/Test.Api.App.A/publish
