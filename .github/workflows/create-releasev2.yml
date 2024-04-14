@@ -131,11 +131,19 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build and Test Application
-      if: false
       run: |
         # Insert commands to build and test your .NET application
-        dotnet build ./$APP_PATH/Test.Api.App.A
+        dotnet build ./$APP_PATH/Test.Api.App.A --configuration Release --no-restore
         dotnet test ./$APP_PATH/tests/Test.Api.App.A.Tests
+
+    - name: Publish the application
+      run: dotnet publish ./$APP_PATH/Test.Api.App.A -c Release -o ./$APP_PATH/Test.Api.App.A/publish
+
+    - name: Archive Production Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.APP_NAME }}-artifacts
+        path: $APP_PATH/Test.Api.App.A/publish/
 
     - name: Get commits since last tag for the application
       if: ${{ env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
@@ -242,3 +250,4 @@ jobs:
         body_path: release_notes.md
         draft: true
         prerelease: false
+        files: $APP_PATH/Test.Api.App.A/publish/**
