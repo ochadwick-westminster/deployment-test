@@ -183,11 +183,11 @@ jobs:
           full_message=$(git show -s --format=%B $commit_hash)
           echo "Full Commit: $full_message"
 
-          commit_message="- $(echo $commit_title)\n"
+          commit_message="- $commit_title"
           if [[ "$full_message" =~ BREAKING[[:space:]]CHANGE: ]] || [[ "$commit_title" =~ ^[a-z]+!: ]]; then
-            commit_message+=" (BREAKING CHANGE)"
+            commit_message+=$' (BREAKING CHANGE)'
           fi
-          commit_message+="\n"
+          commit_message+=$'\n'
           echo "Commit message for release note: $commit_message"
           
           if [[ "$commit_title" =~ ^feat: ]]; then
