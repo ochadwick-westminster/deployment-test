@@ -185,7 +185,7 @@ jobs:
               FIXES+="- $(echo $commit | cut -d ' ' -f2-)\n"
             fi
           else
-            OTHERS+="- $(echo $commit)\n"
+            OTHERS+="- $(echo $commit)"
           fi
         done < <(echo "$commits")       
         
