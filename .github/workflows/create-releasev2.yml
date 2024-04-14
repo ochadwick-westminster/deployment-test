@@ -186,6 +186,7 @@ jobs:
           commit_message="$commit_title"
           if [[ "$full_message" =~ BREAKING[[:space:]]CHANGE: ]] || [[ "$commit_title" =~ ^[a-z]+!: ]]; then
             commit_message+=$' (BREAKING CHANGE)'
+            commit_message="**${commit_message}**"
           fi
           echo "Commit message for release note: $commit_message"
           
@@ -195,6 +196,7 @@ jobs:
             FIXES+="- $(echo $commit_message | cut -d ' ' -f2-)\n"
           else
             OTHERS+=$commit_message
+            "- $commit_message\n"
           fi
         done < <(echo "$commits" | sed '/^$/d')
 
