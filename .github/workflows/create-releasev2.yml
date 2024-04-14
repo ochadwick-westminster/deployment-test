@@ -167,13 +167,13 @@ jobs:
         FEATURES=""
 
         while IFS= read -r commit; do
-          commit=$(echo $commit | tr -d '\n')
           if [[ -z "$commit" ]]; then
             continue
           fi
 
           # Extract the title (first line) of the commit message
           title=$(echo "$commit" | head -n 1)
+          title=$(echo "$commit" | grep '^[^#]' | head -n 1)
   
           if [[ "$commit" =~ ^fezat: ]]; then
             if [[ "$commit" =~ BREAKING[[:space:]]CHANGE: ]] || [[ "$commit" =~ ^[a-z]+!: ]]; then
@@ -190,7 +190,7 @@ jobs:
           else
             OTHERS+="- $(echo $title)\n"
           fi
-        done < <(echo "$commits")       
+        done < <(echo "$commits" | sed '/^$/d')       
         
         if [[ $FEATURES ]]; then
           RELEASE_NOTES+="\n\n### Features\n$FEATURES"
