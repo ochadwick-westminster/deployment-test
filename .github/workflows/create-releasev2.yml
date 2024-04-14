@@ -144,18 +144,6 @@ jobs:
         
         commits=$(git log $LAST_TAG..HEAD --no-merges --pretty=format:"%B" -- $APP_PATH $CORE_PATH | base64 -w 0)
 
-        decoded_commits=$(echo "$commits" | base64 --decode)
-
-        echo "Commits:"
-        IFS=$'\n' read -r -d '' -a commit_array <<< "$decoded_commits"
-
-        # Iterate through each commit and extract the first line
-        for full_commit in "${commit_array[@]}"; do
-            # Extract the first line of each commit message
-            commit_title=$(echo "$full_commit" | head -n 1)
-            echo "$commit_title"
-        done
-        
         echo "Outputting commits:"
         echo $commits
         # Use GITHUB_OUTPUT to set the output variable
