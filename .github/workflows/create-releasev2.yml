@@ -143,7 +143,7 @@ jobs:
       run: |
         echo $LAST_TAG
         
-        commits=$(git log $LAST_TAG..HEAD --no-merges --pretty=format:"%B" -- $APP_PATH $CORE_PATH | base64 -w 0)
+        commits=$(git log $LAST_TAG..HEAD --no-merges --pretty=format:"%h %s" -- $APP_PATH $CORE_PATH | base64 -w 0)
 
         # Use GITHUB_OUTPUT to set the output variable
         echo "commits=$commits" >> $GITHUB_OUTPUT
@@ -152,51 +152,58 @@ jobs:
       if: ${{ env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
       id: release-notes
       run: |
-        #echo ${{ steps.get-commits.outputs.commits }}
+        echo ${{ steps.get-commits.outputs.commits }}
 
-        # Decode the Base64 encoded commits
+        Decode the Base64 encoded commits
         #commits=$(echo ${{ steps.get-commits.outputs.commits }} | base64 --decode)
 
-        #echo "Outputting commits:"
-        #echo $commits
-
-        commits=$(git log $LAST_TAG..HEAD --no-merges --pretty=format:"%B" -- $APP_PATH $CORE_PATH)
-        
         echo "Generating release notes..."
         RELEASE_NOTES="## Release Notes"
         FIXES=""
         OTHERS=""
         FEATURES=""
 
+        # Enable case-insensitive matching
+        shopt -s nocasematch
+
         while IFS= read -r commit; do
-          echo "-----------"
-          echo "Processing Commit:"
-          echo $commit
+          echo "Processing commits:
           if [[ -z "$commit" ]]; then
+            echo "Commit empty"
             continue
           fi
 
-          # Extract the title (first line) of the commit message
-          title=$(echo "$commit" | head -n 1)
-          title=$(echo "$commit" | grep '^[^#]' | head -n 1)
-  
-          if [[ "$commit" =~ ^fezat: ]]; then
-            if [[ "$commit" =~ BREAKING[[:space:]]CHANGE: ]] || [[ "$commit" =~ ^[a-z]+!: ]]; then
-              FEATURES+="- (BREAKING CHANGE) $(echo $commit | cut -d ' ' -f2-)\n"
-            else
-              FEATURES+="- $(echo $commit | cut -d ' ' -f2-)\n"
-            fi
-          elif [[ "$commit" =~ ^fzix: ]]; then
-            if [[ "$commit" =~ BREAKING[[:space:]]CHANGE: ]] || [[ "$commit" =~ ^[a-z]+!: ]]; then
-              FIXES+="- (BREAKING CHANGE) $(echo $commit | cut -d ' ' -f2-)\n"
-            else
-              FIXES+="- $(echo $commit | cut -d ' ' -f2-)\n"
-            fi
-          else
-            OTHERS+="- $(echo $title)\n"
+          # Extract commit hash, which is the first part before a space
+          commit_hash=$(echo $line | awk '{print $1}')
+          echo "Hash: $commit_hash"
+
+          Extract commit title, which is the second part before a space
+          commit_title=$(echo "$line" | cut -d ' ' -f 2-)
+          echo "Title: $commit_title"
+
+          # Get the full commit message
+          full_message=$(git show -s --format=%B $commit_hash)
+          echo "Full Commit: $full_message"
+
+          commit_message="- $(echo $commit_title)\n"
+          if [[ "$full_message" =~ BREAKING[[:space:]]CHANGE: ]] || [[ "$commit_title" =~ ^[a-z]+!: ]]; then
+            commit_message+=" (BREAKING CHANGE)"
           fi
-        done < <(echo "$commits" | sed '/^$/d')       
-        
+          commit_message+="\n"
+          echo "Commit message for release note: $commit_message"
+          
+          if [[ "$commit_title" =~ ^feat: ]]; then
+            FEATURES+=$commit_message
+          elif [[ "$commit_title" =~ ^fix: ]]; then
+            FIXES+=$commit_message"
+          else
+            OTHERS+="$commit_message"
+          fi
+        done < <(echo "$commits" | sed '/^$/d')
+
+        # Disable case-insensitive matching after use
+        shopt -u nocasematch
+
         if [[ $FEATURES ]]; then
           RELEASE_NOTES+="\n\n### Features\n$FEATURES"
         fi
