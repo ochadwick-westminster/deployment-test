@@ -65,7 +65,7 @@ jobs:
 
         if [[ $LAST_TAG =~ ^[0-9a-f]{5,40}$ ]]; then
           echo "No version tag found, using initial commit as LAST_TAG."
-          PREFIX=${{ inputs.APP_NAME }}
+          PREFIX="${{ inputs.APP_NAME }}-v"
           MAJOR=0
           MINOR=0
           PATCH=0
