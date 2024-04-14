@@ -92,12 +92,12 @@ jobs:
           if git diff --name-only $COMMIT_ID^! | grep -q -E "$APP_PATH|$CORE_PATH"; then
             COMMIT_MSG=$(git log -1 --pretty=format:"%B" $COMMIT_ID)
             # Check for breaking changes in footer or with '!' in type
-            if [[ "$COMMIT_MSG" =~ BREAKING[[:space:]]CHANGE: ]] || [[ "$COMMIT_MSG" =~ ^[a-z]+![:]: ]]; then
+            if [[ "$COMMIT_MSG" =~ BREAKING[[:space:]]CHANGE: ]] || [[ "$COMMIT_MSG" =~ ^[a-z]+!: ]]; then
               MAJOR_INC=1
               break # Major version increment is the highest, stop further analysis
-            elif [[ "$COMMIT_MSG" =~ ^feat[:]: ]]; then
+            elif [[ "$COMMIT_MSG" =~ ^feat: ]]; then
               MINOR_INC=1
-            elif [[ "$COMMIT_MSG" =~ ^fix[:]: ]]; then
+            elif [[ "$COMMIT_MSG" =~ ^fix: ]]; then
               PATCH_INC=1
             fi
           fi
