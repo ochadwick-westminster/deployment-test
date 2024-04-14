@@ -186,11 +186,10 @@ jobs:
           commit_message="$commit_title"
           if [[ "$full_message" =~ BREAKING[[:space:]]CHANGE: ]] || [[ "$commit_title" =~ ^[a-z]+!: ]]; then
             commit_message+=$' (BREAKING CHANGE)'
-            commit_message="**${commit_message}**"
           fi
           echo "Commit message for release note: $commit_message"
           
-          if [[ "$commit_title" =~ ^feat ]]; then
+          if [[ "$commit_title" =~ ^feat ]]; then    
             FEATURES+="- $(echo $commit_message | cut -d ' ' -f2-)\n"
           elif [[ "$commit_title" =~ ^fix ]]; then
             FIXES+="- $(echo $commit_message | cut -d ' ' -f2-)\n"
