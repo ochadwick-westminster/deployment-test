@@ -174,10 +174,18 @@ jobs:
     - name: Generate release notes based on semantic principles
       id: release-notes
       run: |
-        echo ${{ steps.get-commits.outputs.commits }}
+        #echo ${{ steps.get-commits.outputs.commits }}
 
         # Decode the Base64 encoded commits
-        commits=$(echo ${{ steps.get-commits.outputs.commits }} | base64 --decode)
+        #commits=$(echo ${{ steps.get-commits.outputs.commits }} | base64 --decode)
+
+        last_tag=${{ steps.last-tag.outputs.tag }}
+        
+        if [[ $last_tag ]]; then
+          commits=$(git log ${{ steps.last-tag.outputs.tag }}..HEAD --pretty=format:"%h %s" -- 'src/Test/AppA/')
+        else
+          commits=$(git log --pretty=format:"%h %s" -- 'src/Test/AppA/')
+        fi
 
         echo "Generating release notes..."
         RELEASE_NOTES="## Release Notes"
@@ -186,6 +194,9 @@ jobs:
         FEATURES=""
 
         while IFS= read -r line; do
+          echo "-----------"
+          echo "Processing Commit:"
+          echo $line
           if [[ "$line" == *"feat:"* ]]; then
             #FEATURES+="- $line\n"
             FEATURES+="- $(echo $line | cut -d ' ' -f3-)\n"
