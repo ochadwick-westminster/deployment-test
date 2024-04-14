@@ -152,14 +152,16 @@ jobs:
       if: ${{ env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
       id: release-notes
       run: |
-        echo ${{ steps.get-commits.outputs.commits }}
+        #echo ${{ steps.get-commits.outputs.commits }}
 
         # Decode the Base64 encoded commits
-        commits=$(echo ${{ steps.get-commits.outputs.commits }} | base64 --decode)
+        #commits=$(echo ${{ steps.get-commits.outputs.commits }} | base64 --decode)
 
-        echo "Outputting commits:"
-        echo $commits
+        #echo "Outputting commits:"
+        #echo $commits
 
+        commits=$(git log $LAST_TAG..HEAD --no-merges --pretty=format:"%B" -- $APP_PATH $CORE_PATH)
+        
         echo "Generating release notes..."
         RELEASE_NOTES="## Release Notes"
         FIXES=""
@@ -167,6 +169,9 @@ jobs:
         FEATURES=""
 
         while IFS= read -r commit; do
+          echo "-----------"
+          echo "Processing Commit:"
+          echo $line
           if [[ -z "$commit" ]]; then
             continue
           fi
