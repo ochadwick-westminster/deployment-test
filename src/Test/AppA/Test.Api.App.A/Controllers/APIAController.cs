@@ -6,7 +6,7 @@ namespace Test.Api.App.A.Controllers;
 public class APIAController : ControllerBase
 {
     private readonly ILogger<APIAController> _logger;
-    private readonly string password = "1234";
+    private readonly string password = "123e4";
 
     private string connectionString = "Server=myServerAddress;Database=myDataBase;User Id=myUsername;Password=myPassword123e;";
 
