@@ -133,8 +133,8 @@ jobs:
     - name: Build and Test Application
       run: |
         # Insert commands to build and test your .NET application
-        dotnet build ./$APP_PATH/Test.Api.App.A --configuration Release --no-restore
-        dotnet test ./$APP_PATH/tests/Test.Api.App.A.Tests
+        dotnet build ./$APP_PATH/Test.Api.App.A --configuration Release
+        dotnet test ./$APP_PATH/tests/Test.Api.App.A.Tests --no-build
 
     - name: Publish the application
       run: dotnet publish ./$APP_PATH/Test.Api.App.A -c Release -o ./$APP_PATH/Test.Api.App.A/publish
