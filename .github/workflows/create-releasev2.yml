@@ -165,18 +165,18 @@ jobs:
         shopt -s nocasematch
 
         while IFS= read -r commit; do
-          echo "Processing commits:
+          echo "Processing commits:"
           if [[ -z "$commit" ]]; then
             echo "Commit empty"
             continue
           fi
 
           # Extract commit hash, which is the first part before a space
-          commit_hash=$(echo $line | awk '{print $1}')
+          commit_hash=$(echo $commit | awk '{print $1}')
           echo "Hash: $commit_hash"
 
-          Extract commit title, which is the second part before a space
-          commit_title=$(echo "$line" | cut -d ' ' -f 2-)
+          # Extract commit title, which is the second part before a space
+          commit_title=$(echo "$commit" | cut -d ' ' -f 2-)
           echo "Title: $commit_title"
 
           # Get the full commit message
@@ -218,11 +218,6 @@ jobs:
         
         # Save the release notes to a markdown file
         echo -e "$RELEASE_NOTES" > release_notes.md
-        
-        # Use the GITHUB_OUTPUT for setting formatted release notes as an output variable
-        echo "release_notes<<EOF" >> $GITHUB_OUTPUT
-        echo -e "$RELEASE_NOTES" >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
 
     - name: Upload Release Notes as Artifact
       if: ${{ env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
