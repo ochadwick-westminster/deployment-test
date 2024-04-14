@@ -193,9 +193,9 @@ jobs:
           if [[ "$commit_title" =~ ^feat: ]]; then
             FEATURES+=$commit_message
           elif [[ "$commit_title" =~ ^fix: ]]; then
-            FIXES+=$commit_message"
+            FIXES+=$commit_message
           else
-            OTHERS+="$commit_message"
+            OTHERS+=$commit_message
           fi
         done < <(echo "$commits" | sed '/^$/d')
 
