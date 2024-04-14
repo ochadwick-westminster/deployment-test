@@ -171,6 +171,9 @@ jobs:
           if [[ -z "$commit" ]]; then
             continue
           fi
+
+          # Extract the title (first line) of the commit message
+          title=$(echo "$commit" | head -n 1)
   
           if [[ "$commit" =~ ^fezat: ]]; then
             if [[ "$commit" =~ BREAKING[[:space:]]CHANGE: ]] || [[ "$commit" =~ ^[a-z]+!: ]]; then
@@ -185,7 +188,7 @@ jobs:
               FIXES+="- $(echo $commit | cut -d ' ' -f2-)\n"
             fi
           else
-            OTHERS+="- $(echo $commit)"
+            OTHERS+="- $(echo $title)\n"
           fi
         done < <(echo "$commits")       
         
