@@ -152,10 +152,8 @@ jobs:
       if: ${{ env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
       id: release-notes
       run: |
-        echo ${{ steps.get-commits.outputs.commits }}
-
-        Decode the Base64 encoded commits
-        #commits=$(echo ${{ steps.get-commits.outputs.commits }} | base64 --decode)
+        #Decode the Base64 encoded commits
+        commits=$(echo ${{ steps.get-commits.outputs.commits }} | base64 --decode)
 
         echo "Generating release notes..."
         RELEASE_NOTES="## Release Notes"
