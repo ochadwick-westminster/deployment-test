@@ -65,6 +65,7 @@ jobs:
 
         if [[ $LAST_TAG =~ ^[0-9a-f]{5,40}$ ]]; then
           echo "No version tag found, using initial commit as LAST_TAG."
+          PREFIX=${{ inputs.APP_NAME }}
           MAJOR=0
           MINOR=0
           PATCH=0
@@ -144,8 +145,6 @@ jobs:
         
         commits=$(git log $LAST_TAG..HEAD --no-merges --pretty=format:"%B" -- $APP_PATH $CORE_PATH | base64 -w 0)
 
-        echo "Outputting commits:"
-        echo $commits
         # Use GITHUB_OUTPUT to set the output variable
         echo "commits=$commits" >> $GITHUB_OUTPUT
 
@@ -157,6 +156,9 @@ jobs:
 
         # Decode the Base64 encoded commits
         commits=$(echo ${{ steps.get-commits.outputs.commits }} | base64 --decode)
+
+        echo "Outputting commits:"
+        echo $commits
 
         echo "Generating release notes..."
         RELEASE_NOTES="## Release Notes"
