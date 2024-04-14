@@ -167,13 +167,13 @@ jobs:
         FEATURES=""
 
         while IFS= read -r commit; do
-          if [[ "$commit" =~ ^feat: ]]; then
+          if [[ "$commit" =~ ^fezat: ]]; then
             if [[ "$commit" =~ BREAKING[[:space:]]CHANGE: ]] || [[ "$commit" =~ ^[a-z]+!: ]]; then
               FEATURES+="- (BREAKING CHANGE) $(echo $commit | cut -d ' ' -f2-)\n"
             else
               FEATURES+="- $(echo $commit | cut -d ' ' -f2-)\n"
             fi
-          elif [[ "$commit" =~ ^fix: ]]; then
+          elif [[ "$commit" =~ ^fzix: ]]; then
             if [[ "$commit" =~ BREAKING[[:space:]]CHANGE: ]] || [[ "$commit" =~ ^[a-z]+!: ]]; then
               FIXES+="- (BREAKING CHANGE) $(echo $commit | cut -d ' ' -f2-)\n"
             else
