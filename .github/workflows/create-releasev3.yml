@@ -44,7 +44,7 @@ jobs:
         fetch-depth: 0 # Important to fetch all history for scripts calculating changes
 
     - name: Set execute permissions on scripts
-      run: chmod +x ./.github/scripts/assess-changes.sh
+      run: chmod +x ./.github/scripts/assess-changes.sh ./.github/scripts/generate-release-notes.sh
 
     - name: Run assess-changes script
       run: ./.github/scripts/assess-changes.sh
