@@ -16,6 +16,9 @@ on:
 env:
   APP_PATH: 'src/Test/${{ inputs.APP_NAME }}/'
   CORE_PATH: 'src/Test/Core/'
+
+permissions:
+  read-all
   
 jobs:
   validate-inputs:
