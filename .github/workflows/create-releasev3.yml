@@ -57,11 +57,14 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         APP_NAME: ${{ github.event.inputs.APP_NAME }}
 
-    - name: Build and Test Application
+    - name: Build Application
       run: |
         # Insert commands to build and test your .NET application
         dotnet build ./$APP_PATH/Test.Api.${{ inputs.APP_NAME }} --configuration Release
-        dotnet test ./$APP_PATH/tests/Test.Api.${{ inputs.APP_NAME }}.Tests
+
+    - name: Run All Repository Tests
+      run: |
+        find src -name '*.Tests.csproj' -exec dotnet test {} \;
 
     - name: Publish the application
       run: dotnet publish ./$APP_PATH/Test.Api.${{ inputs.APP_NAME }} -c Release -o publish
