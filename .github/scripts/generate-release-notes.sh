@@ -43,15 +43,15 @@ while IFS= read -r commit; do
   
   if [[ "$commit_title" =~ ^feat ]]; then
     if [[ "$breaking_change_commit" == true ]]; then
-      FEATURE="- **$(echo $commit_message | cut -d ' ' -f2-)**\n"
+      FEATURE="- **$(echo $commit_title | cut -d ' ' -f2-)**\n"
     else
-      FEATURE="- $(echo $commit_message | cut -d ' ' -f2-)\n"
+      FEATURE="- $(echo $commit_title | cut -d ' ' -f2-)\n"
     fi
     FEATURES+=$FEATURE
   elif [[ "$commit_title" =~ ^fix ]]; then
-    FIXES+="- $(echo $commit_message | cut -d ' ' -f2-)\n"
+    FIXES+="- $(echo $commit_title | cut -d ' ' -f2-)\n"
   else
-    OTHERS+="- $commit_message\n"
+    OTHERS+="- $commit_title\n"
   fi
 done < <(echo "$commits" | sed '/^$/d')
 
