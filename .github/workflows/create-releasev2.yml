@@ -27,6 +27,9 @@ jobs:
   build-and-release:
     needs: validate-inputs
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      discussions: write
     env:
       APP_PATH: 'src/Test/${{ inputs.APP_NAME }}/'
       CORE_PATH: 'src/Test/Core/'
