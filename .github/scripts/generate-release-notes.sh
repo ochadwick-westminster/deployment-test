@@ -5,7 +5,8 @@ encoded_commits=$(echo "$COMMITS")
 commits=$(echo "$encoded_commits" | base64 --decode)
 
 echo "Generating release notes..."
-RELEASE_NOTES="## Release Notes - $NEXT_VERSION"
+TODAYS_DATE=$(date +%Y-%m-%d) # Gets the current date in the format YYYY-MM-DD
+RELEASE_NOTES="## $NEXT_VERSION ($TODAYS_DATE)"
 FIXES=""
 OTHERS=""
 FEATURES=""
@@ -59,13 +60,13 @@ done < <(echo "$commits" | sed '/^$/d')
 shopt -u nocasematch
 
 if [[ $FEATURES ]]; then
-  RELEASE_NOTES+="\n\n### Features\n$FEATURES"
+  RELEASE_NOTES+="\n\n### :rocket: Features\n$FEATURES"
 fi
 if [[ $FIXES ]]; then
-  RELEASE_NOTES+="\n\n### Fixes\n$FIXES"
+  RELEASE_NOTES+="\n\n### :adhesive_bandage: Fixes\n$FIXES"
 fi
 if [[ $OTHERS ]]; then
-  RELEASE_NOTES+="\n\n### Others\n$OTHERS"
+  RELEASE_NOTES+="\n\n### :wrench: Others\n$OTHERS"
 fi
 
 echo "Release notes:"
