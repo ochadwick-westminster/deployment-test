@@ -68,7 +68,9 @@ jobs:
       run: |
         echo $LAST_TAG
         COMMITS=$(git log $LAST_TAG..HEAD --no-merges --format="%H" -- $APP_PATH $CORE_PATH)
-        echo "commits=$COMMITS" >> $GITHUB_OUTPUT
+        #echo "commits=$COMMITS" >> $GITHUB_OUTPUT
+        echo "$COMMITS" > filtered-commits.txt  # Correctly write commits to a file
+        echo "commits_path=filtered-commits.txt" >> $GITHUB_ENV  # Set path in ENV for later use if necessary
     - uses: actions/upload-artifact@v4
       with:
         name: filtered-commits
