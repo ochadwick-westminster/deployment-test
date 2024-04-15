@@ -93,6 +93,5 @@ jobs:
         uses: cycjimmy/semantic-release-action@v4
         with:
           semantic_version: 18
-          extra_plugins: '["./filter-commits-plugin"]'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
