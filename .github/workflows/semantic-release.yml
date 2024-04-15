@@ -64,7 +64,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Filter commits
-      if: ${{ env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
       id: filter-commits
       run: |
         echo $LAST_TAG
