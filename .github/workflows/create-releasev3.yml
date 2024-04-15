@@ -239,4 +239,4 @@ jobs:
 
     - name: Create and Publish Release
       if: env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true'
-      run: ./scripts/publish-release.sh
+      run: ./.github/scripts/publish-release.sh
