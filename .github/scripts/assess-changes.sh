@@ -17,6 +17,7 @@ if [ -z "$LAST_TAG" ]; then
   echo "No version tag found, using initial commit as LAST_TAG."
 fi
 
+echo "LAST_TAG=$LAST_TAG" >> $GITHUB_ENV
 echo "Last tag: $LAST_TAG"
 
 # Determine changed files since the last tag in application and core directories
