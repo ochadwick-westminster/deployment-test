@@ -49,6 +49,7 @@ jobs:
     - name: Run assess-changes script
       run: ./.github/scripts/assess-changes.sh
       env:
+        GITHUB_ENV: ${{ env.GITHUB_ENV }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         APP_NAME: ${{ github.event.inputs.APP_NAME }}
 
