@@ -92,5 +92,13 @@ NEXT_VERSION="$PREFIX$MAJOR.$MINOR.$PATCH"
 echo "Next version: $NEXT_VERSION"
 echo "NEXT_VERSION=$NEXT_VERSION" >> $GITHUB_ENV
 
+if [[ "$NEXT_VERSION" == "$LAST_TAG" ]]; then
+  echo "VERSION_CHANGED=false" >> $GITHUB_ENV
+  echo "VERSION_CHANGED=false"
+else
+  echo "VERSION_CHANGED=true" >> $GITHUB_ENV
+  echo "VERSION_CHANGED=true"
+fi
+
 # Disable case-insensitive matching after use
 shopt -u nocasematch
