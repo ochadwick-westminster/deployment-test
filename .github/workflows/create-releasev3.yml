@@ -80,14 +80,7 @@ jobs:
       id: release-notes
       run: ./.github/scripts/generate-release-notes.sh
       env:
-        COMMITS: ${{ steps.get-commits.outputs.commits }}
-
-    - name: Upload Release Notes as Artifact
-      if: false
-      uses: actions/upload-artifact@v4
-      with:
-        name: release-notes
-        path: release_notes.md 
+        COMMITS: ${{ steps.get-commits.outputs.commits }} 
 
     - name: Create and Publish Tag
       if: env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true'
