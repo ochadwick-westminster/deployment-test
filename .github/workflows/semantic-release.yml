@@ -1,0 +1,97 @@
+name: Semantic Release Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      APP_NAME:
+        type: choice
+        options: 
+        - 'Please select an option...'
+        - 'AppA'
+        - 'AppB'
+        required: true
+        default: 'Please select an option...'
+        description: App to create a release for
+
+jobs:
+  validate-inputs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate APP_NAME
+        run: |
+          if [[ "${{ inputs.APP_NAME }}" == "Please select an option..." ]]; then
+            echo "Error: You must select a valid application to release."
+            exit 1
+          fi
+          
+  get-commits:
+    needs: validate-inputs
+    runs-on: ubuntu-latest
+    env:
+      APP_PATH: 'src/Test/${{ inputs.APP_NAME }}/'
+      CORE_PATH: 'src/Test/Core/'
+    outputs:
+      filtered-commits: ${{ steps.filter_commits.outputs.commits }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # Important to fetch all history for scripts calculating changes
+
+    - name: Determine Changeset and Version Impact
+      id: assess-changes
+      run: |
+        LAST_TAG=$(git tag --list | grep -i '^${{ inputs.APP_NAME }}' | sort --version-sort --reverse | head -n 1)
+        if [ -z "$LAST_TAG" ]; then
+          LAST_TAG=$(git rev-list --max-parents=0 HEAD)
+        fi
+        echo "LAST_TAG=$LAST_TAG" >> $GITHUB_ENV
+        echo "Last tag: $LAST_TAG"
+       
+        CHANGED_FILES_APP=$(git diff --name-only $LAST_TAG HEAD | grep -E "$APP_PATH" || true)
+        CHANGED_FILES_CORE=$(git diff --name-only $LAST_TAG HEAD | grep -E "$CORE_PATH" || true)
+        echo "Changed Files in ${{ inputs.APP_NAME }}: $CHANGED_FILES_APP"
+        echo "Changed Files in Core: $CHANGED_FILES_CORE"
+
+        if [[ -z "$CHANGED_FILES_APP" && -z "$CHANGED_FILES_CORE" ]]; then
+          echo "APP_AFFECTED=false" >> $GITHUB_ENV
+          echo "No relevant changes detected. Skipping release."
+          exit 1
+        else
+          echo "APP_AFFECTED=true" >> $GITHUB_ENV
+          echo "Changes detected in ${{ inputs.APP_NAME }} or Core application. Preparing release."
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Filter commits
+      if: ${{ env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
+      id: filter-commits
+      run: |
+        echo $LAST_TAG
+        COMMITS=$(git log $LAST_TAG..HEAD --no-merges --format="%H" -- $APP_PATH $CORE_PATH)
+        echo "commits=$COMMITS" >> $GITHUB_OUTPUT
+    - uses: actions/upload-artifact@v4
+      with:
+        name: filtered-commits
+        path: filtered-commits.txt
+
+  release:
+    needs: [get-commits]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: filtered-commits
+          path: .
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - name: Semantic Release
+        uses: cycjimmy/semantic-release-action@v4
+        with:
+          semantic_version: 18
+          extra_plugins: '["./.github/plugins/filter-commits-plugin.js"]'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
