@@ -44,6 +44,8 @@ jobs:
 
     - name: Set execute permissions on scripts
       run: chmod +x ./.github/scripts/assess-changes.sh
+      env:
+        APP_NAME: ${{ inputs.APP_NAME }}
 
     - name: Run assess-changes script
       run: ./.github/scripts/assess-changes.sh
