@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Retrieve the application name from the environment variable
+echo "env app name: $APP_NAME"
+app_name="$APP_NAME"
+echo "local app name: $app_name"
+
 # Fetch tags to ensure we have the latest tag information
 git fetch --tags
 
