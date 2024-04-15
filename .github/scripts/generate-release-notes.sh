@@ -29,14 +29,25 @@ while IFS= read -r commit; do
   # Get the full commit message
   full_message=$(git show -s --format=%B $commit_hash)
 
-  commit_message="$commit_title"
+  #commit_message="$commit_title"
+  breaking_change_commit=false
   if [[ "$full_message" =~ BREAKING[[:space:]]CHANGE: ]] || [[ "$commit_title" =~ ^[a-z]+!: ]]; then
-    commit_message+=$' (BREAKING CHANGE)'
+    #commit_message+=$' (BREAKING CHANGE)'
+    breaking_change_commit=true
+    echo "Commit contains breaking change"
   fi
-  echo "Commit message for release note: $commit_message"
+
+  FIX=""
+  OTHER=""
+  FEATURE=""
   
-  if [[ "$commit_title" =~ ^feat ]]; then    
-    FEATURES+="- $(echo $commit_message | cut -d ' ' -f2-)\n"
+  if [[ "$commit_title" =~ ^feat ]]; then
+    if [[ "$breaking_change_commit" == true ]]; then
+      FEATURE="- **$(echo $commit_message | cut -d ' ' -f2-)**\n"
+    else
+      FEATURE="- $(echo $commit_message | cut -d ' ' -f2-)\n"
+    fi
+    FEATURES+=$FEATURE
   elif [[ "$commit_title" =~ ^fix ]]; then
     FIXES+="- $(echo $commit_message | cut -d ' ' -f2-)\n"
   else
