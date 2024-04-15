@@ -12,6 +12,10 @@ on:
         required: true
         default: 'Please select an option...'
         description: App to create a release for
+      PREVIEW:
+        type: boolean
+        required: false
+        description: Create release as a preview (Assets will be added to the workflow run only)
 
 env:
   APP_PATH: 'src/Test/${{ inputs.APP_NAME }}/'
@@ -82,14 +86,28 @@ jobs:
       env:
         COMMITS: ${{ steps.get-commits.outputs.commits }} 
 
+    - name: Upload Release Notes as Artifact
+      if: ${{ env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-notes-$NEXT_VERSION
+        path: release_notes.md
+
+    - name: Upload Published App as Artifact
+      if: ${{ env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.NEXT_VERSION }}.zip
+        path: ${{ env.NEXT_VERSION }}.zip
+
     - name: Create and Publish Tag
-      if: env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true'
+      if: ${{ env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' && inputs.PREVIEW == false}}
       run: |
         git tag $NEXT_VERSION
         git push --tags
         
     - name: Create Release for App
-      if: ${{ env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
+      if: ${{ env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' && inputs.PREVIEW == false}}
       uses: softprops/action-gh-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
