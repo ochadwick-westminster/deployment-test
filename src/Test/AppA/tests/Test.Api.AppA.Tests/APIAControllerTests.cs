@@ -1,9 +1,9 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Test.Api.App.A.Controllers;
+using Test.Api.AppA.Controllers;
 
-namespace Test.Api.App.A.Tests;
+namespace Test.Api.AppA.Tests;
 
 public class APIAControllerTests
 {

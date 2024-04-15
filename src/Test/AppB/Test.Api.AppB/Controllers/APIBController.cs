@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Test.Core;
 
-namespace Test.Api.App.B.Controllers;
+namespace Test.Api.AppB.Controllers;
 [ApiController]
 [Route("[controller]")]
 public class APIBController : ControllerBase

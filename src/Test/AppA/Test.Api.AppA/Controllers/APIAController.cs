@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace Test.Api.App.A.Controllers;
+namespace Test.Api.AppA.Controllers;
 [ApiController]
 [Route("[controller]")]
 public class APIAController : ControllerBase

@@ -1,4 +1,4 @@
-namespace Test.Api.App.A;
+namespace Test.Api.AppA;
 
 public class WeatherForecast
 {
