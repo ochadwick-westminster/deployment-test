@@ -5,7 +5,10 @@ on:
     inputs:
       APP_NAME:
         type: choice
-        options: ['AppA', 'AppB']
+        options: 
+        - 'Please select an option...'
+        - 'AppA'
+        - 'AppB'
         required: true
         default: 'Please select an option...'
         description: App to create a release for
