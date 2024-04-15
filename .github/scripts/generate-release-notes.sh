@@ -5,7 +5,7 @@ encoded_commits=$(echo "$COMMITS")
 commits=$(echo "$encoded_commits" | base64 --decode)
 
 echo "Generating release notes..."
-RELEASE_NOTES="## Release Notes"
+RELEASE_NOTES="## Release Notes - $NEXT_VERSION"
 FIXES=""
 OTHERS=""
 FEATURES=""
