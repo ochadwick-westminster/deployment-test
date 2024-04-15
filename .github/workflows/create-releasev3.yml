@@ -66,10 +66,14 @@ jobs:
       run: zip -r $NEXT_VERSION.zip publish/
 
     - name: Get commits since last tag for the application
-      if: ${{ env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
+      if: true
       id: get-commits
       run: |
         echo $LAST_TAG
+
+        #${{ env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
+        echo "APP_AFFECTED = $APP_AFFECTED"
+        echo "VERSION_CHANGED = $VERSION_CHANGED"
         
         commits=$(git log $LAST_TAG..HEAD --no-merges --pretty=format:"%h %s" -- $APP_PATH $CORE_PATH | base64 -w 0)
 
