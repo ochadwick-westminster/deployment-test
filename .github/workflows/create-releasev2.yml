@@ -140,13 +140,10 @@ jobs:
         dotnet test ./$APP_PATH/tests/Test.Api.App.A.Tests
 
     - name: Publish the application
-      run: dotnet publish ./$APP_PATH/Test.Api.App.A -c Release -o ./$APP_PATH/Test.Api.App.A/publish
+      run: dotnet publish ./$APP_PATH/Test.Api.App.A -c Release -o publish
 
-    - name: Archive Production Artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ inputs.APP_NAME }}-artifacts
-        path: /home/runner/work/deployment-test/deployment-test/src/Test/AppA/Test.Api.App.A/publish/
+    - name: Package Application
+      run: zip -r $NEXT_VERSION.zip publish/
 
     - name: Get commits since last tag for the application
       if: ${{ env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
@@ -253,4 +250,4 @@ jobs:
         body_path: release_notes.md
         draft: true
         prerelease: false
-        files: /home/runner/work/deployment-test/deployment-test/src/Test/AppA/Test.Api.App.A/publish/**
+        files: $NEXT_VERSION.zip
