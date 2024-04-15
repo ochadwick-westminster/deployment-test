@@ -5,19 +5,19 @@ VisualStudioVersion = 17.8.34408.163
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AppA", "AppA", "{8D9463E4-5941-482D-BCF1-EB513A2C2869}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Api.App.A", "AppA\Test.Api.App.A\Test.Api.App.A.csproj", "{90E582EC-B745-44E4-B1FD-2CD222BC1E3B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Api.AppA", "AppA\Test.Api.AppA\Test.Api.AppA.csproj", "{90E582EC-B745-44E4-B1FD-2CD222BC1E3B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{A05AB102-BC7C-4B41-9884-DFEE093500C7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Api.App.A.Tests", "AppA\tests\Test.Api.App.A.Tests\Test.Api.App.A.Tests.csproj", "{DD28777D-BC48-4177-B9BD-90F782743221}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Api.AppA.Tests", "AppA\tests\Test.Api.AppA.Tests\Test.Api.AppA.Tests.csproj", "{DD28777D-BC48-4177-B9BD-90F782743221}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AppB", "AppB", "{33E26B78-717E-466C-97F2-F505B2891501}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Api.App.B", "AppB\Test.Api.App.B\Test.Api.App.B.csproj", "{C6380DB6-6F0E-4942-9774-63D51BCC146C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Api.AppB", "AppB\Test.Api.AppB\Test.Api.AppB.csproj", "{C6380DB6-6F0E-4942-9774-63D51BCC146C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0D7632FF-2881-48E3-AEB5-FA9AB419F492}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Api.App.B.Tests", "AppB\tests\Test.Api.App.B.Tests\Test.Api.App.B.Tests.csproj", "{6AB06571-5390-4339-AA14-020C473E2F21}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Api.AppB.Tests", "AppB\tests\Test.Api.AppB.Tests\Test.Api.AppB.Tests.csproj", "{6AB06571-5390-4339-AA14-020C473E2F21}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{F756D2EE-3341-4FFA-B75A-462416BB9486}"
 EndProject

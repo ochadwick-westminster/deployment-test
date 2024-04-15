@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Test.Api.App.A\Test.Api.App.A.csproj" />
+    <ProjectReference Include="..\..\Test.Api.App.B\Test.Api.AppB.csproj" />
   </ItemGroup>
 
 </Project>
