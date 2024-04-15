@@ -22,15 +22,12 @@ while IFS= read -r commit; do
 
   # Extract commit hash, which is the first part before a space
   commit_hash=$(echo $commit | awk '{print $1}')
-  echo "Hash: $commit_hash"
 
   # Extract commit title, which is the second part before a space
   commit_title=$(echo "$commit" | cut -d ' ' -f 2-)
-  echo "Title: $commit_title"
 
   # Get the full commit message
   full_message=$(git show -s --format=%B $commit_hash)
-  echo "Full Commit: $full_message"
 
   commit_message="$commit_title"
   if [[ "$full_message" =~ BREAKING[[:space:]]CHANGE: ]] || [[ "$commit_title" =~ ^[a-z]+!: ]]; then
