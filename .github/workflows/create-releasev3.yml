@@ -43,7 +43,7 @@ jobs:
         fetch-depth: 0 # Important to fetch all history for scripts calculating changes
 
     - name: Set execute permissions on scripts
-      run: chmod +x ./.github/scripts/publish-release.sh ./.github/scripts/assess-changes.sh
+      run: chmod +x ./.github/scripts/assess-changes.sh
 
     - name: Run assess-changes script
       run: ./.github/scripts/assess-changes.sh
@@ -150,6 +150,21 @@ jobs:
         name: release-notes
         path: release_notes.md 
 
-    - name: Create and Publish Release
+    - name: Create and Publish Tag
       if: env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true'
-      run: ./.github/scripts/publish-release.sh
+      run: |
+        git tag $NEXT_VERSION
+        git push --tags
+        
+    - name: Create Release for App
+      if: ${{ env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
+      uses: softprops/action-gh-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        name: '${{ env.NEXT_VERSION }}'
+        tag_name: '${{ env.NEXT_VERSION }}'
+        body_path: release_notes.md
+        draft: false
+        prerelease: false
+        files: ${{ env.NEXT_VERSION }}.zip
