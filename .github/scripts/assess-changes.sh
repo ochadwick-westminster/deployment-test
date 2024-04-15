@@ -29,11 +29,11 @@ echo "Changed Files in Core: $CHANGED_FILES_CORE"
 # Set environment variable to indicate if the app or core has changes
 if [[ -z "$CHANGED_FILES_APP" && -z "$CHANGED_FILES_CORE" ]]; then
   echo "No relevant changes detected. Skipping release."
-  echo "APP_AFFECTED=false" > $GITHUB_ENV
+  echo "APP_AFFECTED=false" >> $GITHUB_ENV
   exit 0
 else
   echo "Changes detected in $APP_NAME or Core application. Preparing release."
-  echo "APP_AFFECTED=true" > $GITHUB_ENV
+  echo "APP_AFFECTED=true" >> $GITHUB_ENV
 fi
 
 # Version calculation logic
@@ -90,7 +90,7 @@ fi
 
 NEXT_VERSION="$PREFIX$MAJOR.$MINOR.$PATCH"
 echo "Next version: $NEXT_VERSION"
-echo "NEXT_VERSION=$NEXT_VERSION" > $GITHUB_ENV
+echo "NEXT_VERSION=$NEXT_VERSION" >> $GITHUB_ENV
 
 # Disable case-insensitive matching after use
 shopt -u nocasematch
