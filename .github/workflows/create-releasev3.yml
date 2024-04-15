@@ -37,6 +37,7 @@ jobs:
     env:
       APP_PATH: 'src/Test/${{ inputs.APP_NAME }}/'
       CORE_PATH: 'src/Test/Core/'
+      APP_NAME: ${{ github.event.inputs.APP_NAME }}
     steps:
     - uses: actions/checkout@v4
       with:
@@ -44,13 +45,12 @@ jobs:
 
     - name: Set execute permissions on scripts
       run: chmod +x ./.github/scripts/assess-changes.sh
-      env:
-        APP_NAME: ${{ github.event.inputs.APP_NAME }}
 
     - name: Run assess-changes script
       run: ./.github/scripts/assess-changes.sh
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        APP_NAME: ${{ github.event.inputs.APP_NAME }}
 
     - name: Build and Test Application
       run: |
