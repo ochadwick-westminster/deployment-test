@@ -90,7 +90,7 @@ jobs:
       if: ${{ env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
       uses: actions/upload-artifact@v4
       with:
-        name: release-notes-$NEXT_VERSION
+        name: release-notes-${{ env.NEXT_VERSION }}
         path: release_notes.md
 
     - name: Upload Published App as Artifact
