@@ -51,7 +51,7 @@ while IFS= read -r commit; do
   echo "---"
 
   # Formatting based on presence of scope
-  if echo "$commit_message" | grep -q "):"; then
+  if echo "$commit_message" | grep -q "\):"; then
       echo "Change contains ):"
   
       # Commit with scope
@@ -63,6 +63,7 @@ while IFS= read -r commit; do
       echo "formatted_message: $formatted_message"
       echo "---"
   else
+      echo "Change does not contain ):"
       # Commit without scope
       description=$(echo "$commit_message" | sed 's/[^:]*: //')
       echo "description: $description"
