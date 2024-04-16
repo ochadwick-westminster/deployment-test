@@ -28,6 +28,7 @@ COMMIT_IDS=$(git log $last_tag..HEAD --pretty=format:"%H" -- $APP_PATH $CORE_PAT
 for COMMIT_ID in $COMMIT_IDS; do
   if git diff --name-only $COMMIT_ID^! | grep -q -E "$APP_PATH|$CORE_PATH"; then
     COMMIT_MSG=$(git log -1 --pretty=format:"%B" $COMMIT_ID)
+    echo "COMMIT_MSG: $COMMIT_MSG"
     # Check for semantic commit types
     if echo "$COMMIT_MSG" | grep -q "BREAKING CHANGE" || echo "$COMMIT_MSG" | grep -qE "\w+\([^)]+\)!:|\w+!:"; then
       MAJOR_INC=1
