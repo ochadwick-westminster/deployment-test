@@ -2,7 +2,9 @@
 
 # Retrieve the required environment variables
 app_name="$APP_NAME"
+echo "app_name: $APP_NAME"
 last_tag="$LAST_TAG"
+echo "last_tag: $LAST_TAG"
 
 # Version calculation logic
 # Enable case-insensitive matching
