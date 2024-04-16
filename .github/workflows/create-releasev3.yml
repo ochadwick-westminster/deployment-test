@@ -80,9 +80,29 @@ jobs:
       run: |
         echo "LAST_TAG=${{ env.LAST_TAG }}" >> $GITHUB_OUTPUT
         echo "NEXT_VERSION=${{ env.NEXT_VERSION }}" >> $GITHUB_OUTPUT
-          
-  build-and-release:
+
+  build-and-test:
     needs: assess-app-version-change
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Application
+        run: |
+          # Insert commands to build and test your .NET application
+          dotnet build ./$APP_PATH/Test.Api.${{ inputs.APP_NAME }} --configuration Release
+          
+      - name: Run Tests
+        run: |
+          dotnet test ./$APP_PATH/**/*.Tests.csproj ./$CORE_PATH/**/*.Tests.csproj
+          
+      - name: Publish the application
+        run: dotnet publish ./${{ env.APP_PATH }}/Test.Api.${{ inputs.APP_NAME }} -c Release -o publish
+  
+      - name: Package Application
+        run: zip -r ${{ needs.assess-app-version-change.outputs.next_version }}.zip publish/
+    
+  generate-release:
+    needs: build-and-test
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -90,30 +110,13 @@ jobs:
         fetch-depth: 0 # Important to fetch all history for scripts calculating changes
 
     - name: Set execute permissions on scripts
-      run: chmod +x ./.github/scripts/assess-changes-app.sh ./.github/scripts/assess-changes-version.sh ./.github/scripts/generate-release-notes.sh
+      run: chmod +x ./.github/scripts/generate-release-notes.sh
 
     - name: Get previous job outputs
       run: |
         echo "LAST_TAG=${{ needs.assess-app-version-change.outputs.last_tag }}" >> $GITHUB_ENV
         echo "NEXT_VERSION=${{ needs.assess-app-version-change.outputs.next_version }}" >> $GITHUB_ENV
         
-    - name: Build Application
-      if: false
-      run: |
-        # Insert commands to build and test your .NET application
-        dotnet build ./$APP_PATH/Test.Api.${{ inputs.APP_NAME }} --configuration Release
-    - name: Run All Repository Tests
-      if: false
-      run: |
-        find src -name '*.Tests.csproj' -exec dotnet test {} \;
-    - name: Publish the application
-      if: false
-      run: dotnet publish ./$APP_PATH/Test.Api.${{ inputs.APP_NAME }} -c Release -o publish
-
-    - name: Package Application
-      if: false
-      run: zip -r $NEXT_VERSION.zip publish/
-
     - name: Get commits & authors since last tag for the application
       id: get-commits
       run: |
