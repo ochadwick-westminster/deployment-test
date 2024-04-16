@@ -37,6 +37,9 @@ jobs:
   assess-app-version-change:
     needs: validate-inputs
     runs-on: ubuntu-latest
+    outputs:
+      last_tag: ${{ steps.set-job-outputs.outputs.LAST_TAG }}
+      next_version: ${{ steps.set-job-outputs.outputs.NEXT_VERSION }}
     steps:
     - uses: actions/checkout@v4
       with:
@@ -73,10 +76,10 @@ jobs:
         echo "The changes in app ${{ inputs.APP_NAME }} do not meet the criteria for a new release. New releases require at least one feature or fix commit."
         exit 0
 
-    - name: test
+    - name: set-job-outputs
       run: |
-        echo "LAST_TAG: ${{ env.LAST_TAG }}"
-        echo "NEXT_VERSION: ${{ env.NEXT_VERSION }}"
+        echo "LAST_TAG=${{ env.LAST_TAG }}" >> $GITHUB_OUTPUT
+        echo "NEXT_VERSION=${{ env.NEXT_VERSION }}" >> $GITHUB_OUTPUT
           
   build-and-release:
     needs: assess-app-version-change
@@ -98,8 +101,8 @@ jobs:
 
     - name: test
       run: |
-        echo "LAST_TAG: ${{ env.LAST_TAG }}"
-        echo "NEXT_VERSION: ${{ env.NEXT_VERSION }}"
+        echo "LAST_TAG:${{ needs.assess-app-version-change.outputs.last_tag }}"
+        echo "NEXT_VERSION: ${{ needs.assess-app-version-change.outputs.next_version }}"
         
     - name: Build Application
       if: false
