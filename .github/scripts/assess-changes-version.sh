@@ -66,9 +66,7 @@ shopt -u nocasematch
 
 # Set environment variable to indicate if the version has changed
 if [[ "$NEXT_VERSION" == "$last_tag" ]]; then
-  echo "The changes in app $app_name do not meet the criteria for a new release. New releases require at least one feature or fix commit."
   echo "VERSION_CHANGED=false" >> $GITHUB_ENV
-  exit 0
 else
   echo "VERSION_CHANGED=true" >> $GITHUB_ENV
 fi
