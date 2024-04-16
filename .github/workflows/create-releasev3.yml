@@ -114,7 +114,6 @@ jobs:
       run: zip -r $NEXT_VERSION.zip publish/
 
     - name: Get commits & authors since last tag for the application
-      if: ${{ env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
       id: get-commits
       run: |
         echo $LAST_TAG
@@ -131,7 +130,6 @@ jobs:
         AUTHORS: ${{ steps.get-commits.outputs.authors }} 
 
     - name: Upload Release Notes as Artifact
-      if: ${{ env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
       uses: actions/upload-artifact@v4
       with:
         name: release-notes-${{ env.NEXT_VERSION }}
@@ -145,13 +143,13 @@ jobs:
         path: ${{ env.NEXT_VERSION }}.zip
 
     - name: Create and Publish Tag
-      if: ${{ env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' && inputs.PREVIEW == false}}
+      if: ${{ inputs.PREVIEW == false}}
       run: |
         git tag $NEXT_VERSION
         git push --tags
         
     - name: Create Release for App
-      if: ${{ env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' && inputs.PREVIEW == false}}
+      if: ${{ inputs.PREVIEW == false}}
       uses: softprops/action-gh-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
