@@ -86,6 +86,7 @@ shopt -u nocasematch
 
 
 while IFS= read -r author; do
+  echo "Author: $author"
   CONTRIBUTORS+="- $author\n"
 done < <(echo "$authors" | sed '/^$/d')
 
