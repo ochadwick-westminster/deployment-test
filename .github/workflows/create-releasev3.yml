@@ -93,7 +93,8 @@ jobs:
           
       - name: Run Tests
         run: |
-          dotnet test ./$APP_PATH/**/*.Tests.csproj ./$CORE_PATH/**/*.Tests.csproj
+          dotnet test ./$APP_PATH/**/*.Tests.csproj
+          dotnet test ./$CORE_PATH/**/*.Tests.csproj
           
       - name: Publish the application
         run: dotnet publish ./${{ env.APP_PATH }}/Test.Api.${{ inputs.APP_NAME }} -c Release -o publish
