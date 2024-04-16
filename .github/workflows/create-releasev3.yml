@@ -100,9 +100,15 @@ jobs:
   
       - name: Package Application
         run: zip -r ${{ needs.assess-app-version-change.outputs.next_version }}.zip publish/
+
+      - name: Upload Published App as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ needs.assess-app-version-change.outputs.next_version }}.zip
+          path: ${{ needs.assess-app-version-change.outputs.next_version }}.zip
     
   generate-release:
-    needs: build-and-test
+    needs: [assess-app-version-change, build-and-test]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -142,12 +148,10 @@ jobs:
         path: release_notes.md
 
     - name: Upload Published App as Artifact
-      if: false
-      uses: actions/upload-artifact@v4
+      uses: actions/download-artifact@v4
       with:
-        name: ${{ env.NEXT_VERSION }}.zip
-        path: ${{ env.NEXT_VERSION }}.zip
-
+        name: ${{ needs.assess-app-version-change.outputs.next_version }}.zip
+        path: package/
     - name: Create and Publish Tag
       if: ${{ inputs.PREVIEW == false}}
       run: |
@@ -165,3 +169,4 @@ jobs:
         body_path: release_notes.md
         draft: false
         prerelease: false
+        files: package/${{ needs.assess-app-version-change.outputs.next_version }}.zip
