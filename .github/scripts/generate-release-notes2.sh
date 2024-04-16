@@ -13,13 +13,11 @@ echo "Generating release notes..."
 TODAYS_DATE=$(date +%Y-%m-%d) # Gets the current date in the format YYYY-MM-DD
 RELEASE_NOTES="## $NEXT_VERSION ($TODAYS_DATE)"
 FIXES=""
-OTHERS=""
 FEATURES=""
 
 # Enable case-insensitive matching
 shopt -s nocasematch
 
-echo "Processing commits:"
 while IFS= read -r commit; do
   echo "======"
   if [[ -z "$commit" ]]; then
@@ -29,18 +27,12 @@ while IFS= read -r commit; do
 
   # Extract commit hash, which is the first part before a space
   commit_hash=$(echo $commit | awk '{print $1}')
-  echo "Commit hash: $commit_hash"
-  echo "---"
 
   # Extract commit title, which is the second part before a space
   commit_title=$(echo "$commit" | cut -d ' ' -f2-)
-  echo "Commit title: $commit_title"
-  echo "---"
 
   # Get the full commit message
   full_message=$(git show -s --format=%B $commit_hash)
-  echo "Commit body: $full_message"
-  echo "---"
 
   # Determine if it is a breaking change by looking for '!' or 'BREAKING CHANGE' in footer
   breaking_change=false
@@ -50,44 +42,48 @@ while IFS= read -r commit; do
   echo "Breaking change: $breaking_change"
   echo "---"
 
-  # Formatting based on presence of scope
-  if echo "$commit_title" | grep -qE "):"; then
-      echo "Change contains ):"
-  
-      # Commit with scope
-      scope=$(echo "$commit_title" | sed -n 's/.*(\([^)]*\)).*/\1/p')
-      echo "scope: $scope"
-      description=$(echo "$commit_title" | sed 's/[^:]*:(.*)//')
-      echo "description: $description"
-      formatted_message="**$scope:** $description$breaking_change"
+  # Formatting commit message
+  # Regular expression to check for a valid type at the start of the commit message
+  if echo "$commit_title" | grep -qE '^(feat|fix)'; then
+      if echo "$commit_title" | grep -qE "):"; then
+          # Commit with scope
+          scope=$(echo "$commit_title" | awk -F'[:()]' '{print $2}')
+          description=$(echo "$commit_title" | sed 's/^[^:]*:[[:space:]]*//')
+          formatted_message="**$scope:** $description"
+      else
+          echo "Change does not contain ):"
+          # Commit without scope
+          description=$(echo "$commit_title" | sed 's/[^:]*: //')
+          formatted_message="$description"
+      fi
+      
+      # Regular expression to check for a pull request number
+      if ! echo "$commit_title" | grep -qE '\(#[0-9]+\)'; then
+          formatted_message="$formatted_message ($commit_hash)"
+      fi
+      
+      if [[ "$breaking_change" == true ]]; then
+          formatted_message="$formatted_message **BREAKING CHANGE**"
+      fi
+      
       echo "formatted_message: $formatted_message"
-      echo "---"
   else
-      echo "Change does not contain ):"
-      # Commit without scope
-      description=$(echo "$commit_title" | sed 's/[^:]*: //')
-      echo "description: $description"
-      formatted_message="$description$breaking_change"
-      echo "formatted_message: $formatted_message"
-      echo "---"
+      echo "Invalid conventional commit type. Commit does not start with a recognized type."
   fi
 
   # Link the commit hash
-  formatted_message+=" ([${commit_hash}]($REPO_URL/commit/$commit_hash))"
+  #formatted_message+=" ([${commit_hash}]($REPO_URL/commit/$commit_hash))"
 
   # Output the formatted message
   echo "$formatted_message"
 
   FIX=""
-  OTHER=""
   FEATURE=""
   
   if [[ "$commit_title" =~ ^feat ]]; then
     FEATURES+="- $formatted_message\n"
   elif [[ "$commit_title" =~ ^fix ]]; then
     FIXES+="- $formatted_message\n"
-  else
-    OTHERS+="- $formatted_message\n"
   fi
 done < <(echo "$commits" | sed '/^$/d')
 
@@ -99,9 +95,6 @@ if [[ $FEATURES ]]; then
 fi
 if [[ $FIXES ]]; then
   RELEASE_NOTES+="\n\n### :adhesive_bandage: Fixes\n$FIXES"
-fi
-if [[ $OTHERS ]]; then
-  RELEASE_NOTES+="\n\n### :wrench: Others\n$OTHERS"
 fi
 
 echo "Release notes:"
