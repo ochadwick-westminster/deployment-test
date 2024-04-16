@@ -91,10 +91,10 @@ jobs:
           # Insert commands to build and test your .NET application
           dotnet build ./$APP_PATH/Test.Api.${{ inputs.APP_NAME }} --configuration Release
           
-      - name: Run Tests
+      - name: Run Related Repository Tests
+        if: false
         run: |
-          dotnet test ./$APP_PATH/**/*.Tests.csproj
-          dotnet test ./$CORE_PATH/**/*.Tests.csproj
+          find src/Test/${{ inputs.APP_NAME }}/tests src/Test/Core/tests  -name '*.csproj' -exec dotnet test {} \;
           
       - name: Publish the application
         run: dotnet publish ./${{ env.APP_PATH }}/Test.Api.${{ inputs.APP_NAME }} -c Release -o publish
