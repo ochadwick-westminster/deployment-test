@@ -3,6 +3,7 @@
 # Retrieve the required environment variables
 app_name="$APP_NAME"
 last_tag="$LAST_TAG"
+echo "Last tag: $last_tag"
 
 # Version calculation logic
 # Enable case-insensitive matching
