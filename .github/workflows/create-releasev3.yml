@@ -113,7 +113,7 @@ jobs:
 
     - name: Generate Release Notes
       id: release-notes
-      run: ./.github/scripts/generate-release-notes2.sh
+      run: ./.github/scripts/generate-release-notes.sh
       env:
         COMMITS: ${{ steps.get-commits.outputs.commits }}
         AUTHORS: ${{ steps.get-commits.outputs.authors }} 
