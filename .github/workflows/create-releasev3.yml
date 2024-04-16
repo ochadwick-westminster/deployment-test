@@ -51,7 +51,7 @@ jobs:
           APP_NAME: ${{ github.event.inputs.APP_NAME }}
   
       - name: Check if the app has had changes
-        if: ${{ env.APP_AFFECTED }}
+        if: ! ${{ env.APP_AFFECTED }}
         id: app-change-check
         run: |
           echo "There are no changes detected to app ${{ inputs.APP_NAME }} since the last release tag."
@@ -66,7 +66,7 @@ jobs:
           LAST_TAG: ${{ env.LAST_TAG }}
   
       - name: Check there is a new version
-        if: ${{ env.VERSION_CHANGED }}
+        if: ! ${{ env.VERSION_CHANGED }}
         id: version-change-check
         run: |
           echo "The changes in app ${{ inputs.APP_NAME }} do not meet the criteria for a new release. New releases require at least one feature or fix commit."
