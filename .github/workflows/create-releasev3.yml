@@ -76,7 +76,8 @@ jobs:
         echo "The changes in app ${{ inputs.APP_NAME }} do not meet the criteria for a new release. New releases require at least one feature or fix commit."
         exit 0
 
-    - name: set-job-outputs
+    - name: Set Job Outputs
+      id: set-job-outputs
       run: |
         echo "LAST_TAG=${{ env.LAST_TAG }}" >> $GITHUB_OUTPUT
         echo "NEXT_VERSION=${{ env.NEXT_VERSION }}" >> $GITHUB_OUTPUT
