@@ -143,6 +143,7 @@ jobs:
         # Use GITHUB_OUTPUT to set the output variable
         echo "commits=$commits" >> $GITHUB_OUTPUT
         echo "authors=$authors" >> $GITHUB_OUTPUT
+        
     - name: Generate Release Notes
       id: release-notes
       run: ./.github/scripts/generate-release-notes.sh
@@ -161,6 +162,7 @@ jobs:
       with:
         name: ${{ needs.assess-app-version-change.outputs.next_version }}.zip
         path: package/
+        
     - name: Create and Publish Tag
       if: ${{ inputs.PREVIEW == false}}
       run: |
