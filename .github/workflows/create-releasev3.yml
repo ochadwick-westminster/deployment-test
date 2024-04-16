@@ -86,6 +86,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '8.0'
+        
       - name: Build Application
         run: |
           # Insert commands to build and test your .NET application
@@ -99,7 +105,10 @@ jobs:
         run: dotnet publish ./${{ env.APP_PATH }}/Test.Api.${{ inputs.APP_NAME }} -c Release -o publish
   
       - name: Package Application
-        run: zip -r ${{ needs.assess-app-version-change.outputs.next_version }}.zip publish/
+        run: |
+          #zip -r ${{ needs.assess-app-version-change.outputs.next_version }}.zip publish/
+          cd publish
+          zip -r ../${{ needs.assess-app-version-change.outputs.next_version }}.zip *
 
       - name: Upload Published App as Artifact
         uses: actions/upload-artifact@v4
