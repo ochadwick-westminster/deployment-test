@@ -48,7 +48,7 @@ jobs:
         fetch-depth: 0 # Important to fetch all history for scripts calculating changes
 
     - name: Set execute permissions on scripts
-      run: chmod +x ./.github/scripts/assess-changes.sh ./.github/scripts/generate-release-notes.sh
+      run: chmod +x ./.github/scripts/assess-changes.sh ./.github/scripts/generate-release-notes.sh ./.github/scripts/generate-release-notes2.sh
 
     - name: Run assess-changes script
       run: ./.github/scripts/assess-changes.sh
@@ -85,7 +85,7 @@ jobs:
 
     - name: Generate Release Notes
       id: release-notes
-      run: ./.github/scripts/generate-release-notes.sh
+      run: ./.github/scripts/generate-release-notes2.sh
       env:
         COMMITS: ${{ steps.get-commits.outputs.commits }} 
 
