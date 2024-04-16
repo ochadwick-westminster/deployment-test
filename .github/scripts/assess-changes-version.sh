@@ -1,15 +1,11 @@
 #!/bin/bash
-
 # Retrieve the required environment variables
 app_name="$APP_NAME"
-echo "app_name: $APP_NAME"
 last_tag="$LAST_TAG"
-echo "last_tag: $LAST_TAG"
 
 # Version calculation logic
 # Enable case-insensitive matching
 shopt -s nocasematch
-
 # Determine the current version from the last tag
 if [[ $last_tag =~ ^[0-9a-f]{5,40}$ ]]; then
   PREFIX="${app_name}-v"
@@ -23,12 +19,10 @@ else
   MINOR=$(echo $VERSION | cut -d '.' -f 2)
   PATCH=$(echo $VERSION | cut -d '.' -f 3)
 fi
-
 # Initialize version increment variables
 MAJOR_INC=0
 MINOR_INC=0
 PATCH_INC=0
-
 # Analyze commits for version bump indicators
 COMMIT_IDS=$(git log $last_tag..HEAD --pretty=format:"%H" -- $APP_PATH $CORE_PATH)
 for COMMIT_ID in $COMMIT_IDS; do
@@ -45,7 +39,6 @@ for COMMIT_ID in $COMMIT_IDS; do
     fi
   fi
 done
-
 # Calculate next version based on increments
 if [[ $MAJOR_INC -eq 1 ]]; then
   MAJOR=$(($MAJOR + 1))
@@ -57,14 +50,11 @@ elif [[ $MINOR_INC -eq 1 ]]; then
 elif [[ $PATCH_INC -eq 1 ]]; then
   PATCH=$(($PATCH + 1))
 fi
-
 NEXT_VERSION="$PREFIX$MAJOR.$MINOR.$PATCH"
 echo "Next version: $NEXT_VERSION"
-echo "NEXT_VERSION=$NEXT_VERSION" >> $GITHUB_OUTPUT
-
+echo "NEXT_VERSION=$NEXT_VERSION" >> $GITHUB_ENV
 # Disable case-insensitive matching after use
 shopt -u nocasematch
-
 # Set environment variable to indicate if the version has changed
 if [[ "$NEXT_VERSION" == "$last_tag" ]]; then
   echo "VERSION_CHANGED=false" >> $GITHUB_ENV
