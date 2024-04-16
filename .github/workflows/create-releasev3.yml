@@ -93,7 +93,8 @@ jobs:
       id: release-notes
       run: ./.github/scripts/generate-release-notes2.sh
       env:
-        COMMITS: ${{ steps.get-commits.outputs.commits }} 
+        COMMITS: ${{ steps.get-commits.outputs.commits }}
+        AUTHORS: ${{ steps.get-commits.outputs.authors }} 
 
     - name: Upload Release Notes as Artifact
       if: ${{ env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
