@@ -88,6 +88,11 @@ jobs:
     - name: Set execute permissions on scripts
       run: chmod +x ./.github/scripts/generate-release-notes.sh
 
+    - name: test
+      run: |
+        echo "last_tag: ${{ needs.determine-app-change-version.outputs.LAST_TAG }}"
+        echo "next_version: ${{ needs.determine-app-change-version.outputs.NEXT_VERSION }}"
+
     - name: Build Application
       if: false
       run: |
