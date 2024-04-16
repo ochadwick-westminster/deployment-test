@@ -92,7 +92,6 @@ jobs:
           dotnet build ./$APP_PATH/Test.Api.${{ inputs.APP_NAME }} --configuration Release
           
       - name: Run Related Repository Tests
-        if: false
         run: |
           find src/Test/${{ inputs.APP_NAME }}/tests src/Test/Core/tests  -name '*.csproj' -exec dotnet test {} \;
           
