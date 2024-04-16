@@ -14,7 +14,7 @@ if [ -z "$LAST_TAG" ]; then
   LAST_TAG=$(git rev-list --max-parents=0 HEAD)
   echo "No version tag found, using initial commit as LAST_TAG."
 fi
-echo "LAST_TAG=$LAST_TAG" >> $GITHUB_ENV
+echo "LAST_TAG=$LAST_TAG" >> $GITHUB_OUTPUT
 
 # Determine changed files since the last tag in application and core directories
 CHANGED_FILES_APP=$(git diff --name-only $LAST_TAG HEAD | grep -E "$APP_PATH" || true)
