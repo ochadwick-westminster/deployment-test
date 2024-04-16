@@ -29,7 +29,7 @@ echo "Changed Files in Core: $CHANGED_FILES_CORE"
 
 # Set environment variable to indicate if the app or core has changes
 if [[ -z "$CHANGED_FILES_APP" && -z "$CHANGED_FILES_CORE" ]]; then
-  echo "No relevant changes detected. Skipping release."
+  echo "There are no changes detected to app $app_name since the last release tag."
   echo "APP_AFFECTED=false" >> $GITHUB_ENV
   exit 0
 else
