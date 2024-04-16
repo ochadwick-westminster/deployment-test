@@ -76,16 +76,18 @@ jobs:
       if: false
       run: zip -r $NEXT_VERSION.zip publish/
 
-    - name: Get commits since last tag for the application
+    - name: Get commits & authors since last tag for the application
       if: ${{ env.APP_AFFECTED == 'true' && env.VERSION_CHANGED == 'true' }}
       id: get-commits
       run: |
         echo $LAST_TAG
 
         commits=$(git log $LAST_TAG..HEAD --no-merges --pretty=format:"%h %s" -- $APP_PATH $CORE_PATH | base64 -w 0)
+        authors=$(git log $LAST_TAG..HEAD --no-merges --pretty=format:"%an <%ae>" -- $APP_PATH $CORE_PATH | sort | uniq | base64 -w 0)
 
         # Use GITHUB_OUTPUT to set the output variable
         echo "commits=$commits" >> $GITHUB_OUTPUT
+        echo "authors=$authors" >> $GITHUB_OUTPUT
 
     - name: Generate Release Notes
       id: release-notes
