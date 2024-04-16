@@ -58,7 +58,7 @@ jobs:
       id: app-change-failure
       run: |
         echo "There are no changes detected to app ${{ inputs.APP_NAME }} since the last release tag."
-        exit 0
+        exit 1
         
     - name: Run assess-changes-version script
       run: ./.github/scripts/assess-changes-version.sh
@@ -73,7 +73,7 @@ jobs:
       id: version-change-failure
       run: |
         echo "The changes in app ${{ inputs.APP_NAME }} do not meet the criteria for a new release. New releases require at least one feature or fix commit."
-        exit 0
+        exit 1
 
     - name: Set Job Outputs
       id: set-job-outputs
