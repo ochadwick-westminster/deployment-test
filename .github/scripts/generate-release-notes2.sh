@@ -19,8 +19,9 @@ FEATURES=""
 # Enable case-insensitive matching
 shopt -s nocasematch
 
+echo "Processing commits:"
 while IFS= read -r commit; do
-  echo "Processing commits:"
+  echo "======"
   if [[ -z "$commit" ]]; then
     echo "Commit empty"
     continue
@@ -28,29 +29,46 @@ while IFS= read -r commit; do
 
   # Extract commit hash, which is the first part before a space
   commit_hash=$(echo $commit | awk '{print $1}')
+  echo "Commit hash: $commit_hash"
+  echo "---"
 
   # Extract commit title, which is the second part before a space
   commit_title=$(echo "$commit" | cut -d ' ' -f2-)
+  echo "Commit title: $commit_title"
+  echo "---"
 
   # Get the full commit message
   full_message=$(git show -s --format=%B $commit_hash)
+  echo "Commit body: $full_message"
+  echo "---"
 
   # Determine if it is a breaking change by looking for '!' or 'BREAKING CHANGE' in footer
   breaking_change=false
   if echo "$full_message" | grep -q "BREAKING CHANGE" || echo "$commit_title" | grep -qE "\w+\([^)]+\)!:|\w+!:"; then
       breaking_change=true
   fi
+  echo "Breaking change: $breaking_change"
+  echo "---"
 
   # Formatting based on presence of scope
   if echo "$commit_message" | grep -q "):"; then
+      echo "Change contains ):"
+  
       # Commit with scope
       scope=$(echo "$commit_message" | sed -n 's/.*(\([^)]*\)).*/\1/p')
+      echo "scope: $scope"
       description=$(echo "$commit_message" | sed 's/[^:]*:(.*)//')
+      echo "description: $description"
       formatted_message="**$scope:** $description$breaking_change"
+      echo "formatted_message: $formatted_message"
+      echo "---"
   else
       # Commit without scope
       description=$(echo "$commit_message" | sed 's/[^:]*: //')
+      echo "description: $description"
       formatted_message="$description$breaking_change"
+      echo "formatted_message: $formatted_message"
+      echo "---"
   fi
 
   # Link the commit hash
