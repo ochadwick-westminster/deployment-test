@@ -58,7 +58,7 @@ fi
 
 NEXT_VERSION="$PREFIX$MAJOR.$MINOR.$PATCH"
 echo "Next version: $NEXT_VERSION"
-echo "NEXT_VERSION=$NEXT_VERSION" >> $GITHUB_ENV
+echo "NEXT_VERSION=$NEXT_VERSION" >> $GITHUB_OUTPUT
 
 # Disable case-insensitive matching after use
 shopt -u nocasematch
