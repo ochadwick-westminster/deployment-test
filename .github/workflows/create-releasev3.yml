@@ -51,9 +51,10 @@ jobs:
           APP_NAME: ${{ github.event.inputs.APP_NAME }}
   
       - name: Check if the app has had changes
-        if: ${{ env.APP_AFFECTED != 'true'}}
+        if: true
         id: app-change-check
         run: |
+          echo "${{ env.APP_AFFECTED}}"
           echo "There are no changes detected to app ${{ inputs.APP_NAME }} since the last release tag."
           exit 0
   
