@@ -51,7 +51,7 @@ jobs:
       run: chmod +x ./.github/scripts/assess-changes-app.sh ./.github/scripts/assess-changes-version.sh ./.github/scripts/generate-release-notes.sh
 
     - name: Run assess-changes-app script
-      run: ./.github/scripts/assess-changes.sh
+      run: ./.github/scripts/assess-changes-app.sh
       env:
         GITHUB_ENV: ${{ env.GITHUB_ENV }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -65,7 +65,7 @@ jobs:
         exit 1
 
     - name: Run assess-changes-app script
-      run: ./.github/scripts/assess-changes.sh
+      run: ./.github/scripts/assess-changes-version.sh
       env:
         GITHUB_ENV: ${{ env.GITHUB_ENV }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
