@@ -178,4 +178,5 @@ jobs:
         body_path: release_notes.md
         draft: false
         prerelease: false
+        make_latest: true
         files: package/${{ needs.assess-app-version-change.outputs.next_version }}.zip
