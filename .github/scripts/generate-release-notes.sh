@@ -30,6 +30,7 @@ while IFS= read -r commit; do
 
   # Extract commit title, which is the second part before a space
   commit_title=$(echo "$commit" | cut -d ' ' -f2-)
+  echo "commit_title: $commit_title"
 
   # Get the full commit message
   full_message=$(git show -s --format=%B $commit_hash)
