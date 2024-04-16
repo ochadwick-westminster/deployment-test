@@ -20,8 +20,6 @@ on:
 env:
   APP_PATH: 'src/Test/${{ inputs.APP_NAME }}/'
   CORE_PATH: 'src/Test/Core/'
-  LAST_TAG: ''
-  NEXT_VERSION: ''
   
 jobs:
   validate-inputs:
@@ -37,6 +35,9 @@ jobs:
   determine-app-change-version:
     needs: validate-inputs
     runs-on: ubuntu-latest
+    outputs:
+      last_tag: ${{ steps.assess-app-changes.outputs.LAST_TAG }}
+      next_version: ${{ steps.assess-app-version.outputs.NEXT_VERSION }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -46,6 +47,7 @@ jobs:
         run: chmod +x ./.github/scripts/assess-changes-app.sh ./.github/scripts/assess-changes-version.sh
 
       - name: Run assess-changes-app script
+        id: assess-app-changes
         run: ./.github/scripts/assess-changes-app.sh
         env:
           GITHUB_ENV: ${{ env.GITHUB_ENV }}
@@ -60,6 +62,7 @@ jobs:
           exit 1
   
       - name: Run assess-changes-version script
+        id: assess-app-version
         run: ./.github/scripts/assess-changes-version.sh
         env:
           GITHUB_ENV: ${{ env.GITHUB_ENV }}
