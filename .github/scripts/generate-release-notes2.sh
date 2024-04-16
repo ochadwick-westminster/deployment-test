@@ -86,7 +86,7 @@ shopt -u nocasematch
 
 
 while IFS= read -r author; do
-  CONTRIBUTORS+="- $author"\n
+  CONTRIBUTORS+="- $author\n"
 done < <(echo "$authors" | sed '/^$/d')
 
 if [[ $FEATURES ]]; then
