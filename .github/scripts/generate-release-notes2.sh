@@ -1,19 +1,19 @@
 #!/bin/bash
 
-# Define repository details
-REPO_URL="https://github.com/ochadwick-westminster/deployment-test"
-
 # Fetch the encoded commits information from the environment variable
 encoded_commits=$(echo "$COMMITS")
+encoded_authors=$(echo "$AUTHORS")
 
-#Decode the Base64 encoded commits
+#Decode
 commits=$(echo "$encoded_commits" | base64 --decode)
+authors=$(echo "$encoded_authors" | base64 --decode)
 
 echo "Generating release notes..."
 TODAYS_DATE=$(date +%Y-%m-%d) # Gets the current date in the format YYYY-MM-DD
 RELEASE_NOTES="## $NEXT_VERSION ($TODAYS_DATE)"
 FIXES=""
 FEATURES=""
+CONTRIBUTORS=""
 
 # Enable case-insensitive matching
 shopt -s nocasematch
@@ -71,14 +71,8 @@ while IFS= read -r commit; do
       echo "Invalid conventional commit type. Commit does not start with a recognized type."
   fi
 
-  # Link the commit hash
-  #formatted_message+=" ([${commit_hash}]($REPO_URL/commit/$commit_hash))"
-
   # Output the formatted message
   echo "$formatted_message"
-
-  FIX=""
-  FEATURE=""
   
   if [[ "$commit_title" =~ ^feat ]]; then
     FEATURES+="- $formatted_message\n"
@@ -90,11 +84,19 @@ done < <(echo "$commits" | sed '/^$/d')
 # Disable case-insensitive matching after use
 shopt -u nocasematch
 
+
+while IFS= read -r author; do
+  CONTRIBUTORS+="- $author"\n
+done < <(echo "$authors" | sed '/^$/d')
+
 if [[ $FEATURES ]]; then
   RELEASE_NOTES+="\n\n### :rocket: Features\n$FEATURES"
 fi
 if [[ $FIXES ]]; then
   RELEASE_NOTES+="\n\n### :adhesive_bandage: Fixes\n$FIXES"
+fi
+if [[ $CONTRIBUTORS ]]; then
+  RELEASE_NOTES+="\n\n### :heart: Thank You\n$CONTRIBUTORS"
 fi
 
 echo "Release notes:"
