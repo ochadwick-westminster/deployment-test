@@ -20,8 +20,6 @@ on:
 env:
   APP_PATH: 'src/Test/${{ inputs.APP_NAME }}/'
   CORE_PATH: 'src/Test/Core/'
-  LAST_TAG: ''
-  NEXT_VERSION: ''
   
 jobs:
   validate-inputs:
@@ -85,13 +83,6 @@ jobs:
   build-and-release:
     needs: assess-app-version-change
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      discussions: write
-    env:
-      APP_PATH: 'src/Test/${{ inputs.APP_NAME }}/'
-      CORE_PATH: 'src/Test/Core/'
-      APP_NAME: ${{ github.event.inputs.APP_NAME }}
     steps:
     - uses: actions/checkout@v4
       with:
@@ -100,10 +91,10 @@ jobs:
     - name: Set execute permissions on scripts
       run: chmod +x ./.github/scripts/assess-changes-app.sh ./.github/scripts/assess-changes-version.sh ./.github/scripts/generate-release-notes.sh
 
-    - name: test
+    - name: Get previous job outputs
       run: |
-        echo "LAST_TAG:${{ needs.assess-app-version-change.outputs.last_tag }}"
-        echo "NEXT_VERSION: ${{ needs.assess-app-version-change.outputs.next_version }}"
+        echo "LAST_TAG=${{ needs.assess-app-version-change.outputs.last_tag }}" >> $GITHUB_ENV
+        echo "NEXT_VERSION=${{ needs.assess-app-version-change.outputs.next_version }}" >> $GITHUB_ENV
         
     - name: Build Application
       if: false
