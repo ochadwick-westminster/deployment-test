@@ -68,7 +68,7 @@ jobs:
           GITHUB_ENV: ${{ env.GITHUB_ENV }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           APP_NAME: ${{ github.event.inputs.APP_NAME }}
-          LAST_TAG: ${{ env.LAST_TAG }}
+          LAST_TAG: ${{ steps.assess-app-changes.outputs.LAST_TAG }}"
   
       - name: Check there is a new version
         if: ${{ env.VERSION_CHANGED  != 'true' }}
