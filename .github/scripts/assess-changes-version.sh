@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# Retrieve the application name from the environment variable
+# Retrieve the required environment variables
+app_name="$APP_NAME"
 last_tag="$LAST_TAG"
 
 # Version calculation logic
@@ -9,7 +10,7 @@ shopt -s nocasematch
 
 # Determine the current version from the last tag
 if [[ $last_tag =~ ^[0-9a-f]{5,40}$ ]]; then
-  PREFIX="${APP_NAME}-v"
+  PREFIX="${app_name}-v"
   MAJOR=0
   MINOR=0
   PATCH=0
