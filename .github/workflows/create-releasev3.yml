@@ -72,6 +72,11 @@ jobs:
       run: |
         echo "The changes in app ${{ inputs.APP_NAME }} do not meet the criteria for a new release. New releases require at least one feature or fix commit."
         exit 0
+
+    - name: test
+      run: |
+        echo "LAST_TAG: ${{ env.LAST_TAG }}"
+        echo "NEXT_VERSION: ${{ env.NEXT_VERSION }}"
           
   build-and-release:
     needs: assess-app-version-change
@@ -91,6 +96,11 @@ jobs:
     - name: Set execute permissions on scripts
       run: chmod +x ./.github/scripts/assess-changes-app.sh ./.github/scripts/assess-changes-version.sh ./.github/scripts/generate-release-notes.sh
 
+    - name: test
+      run: |
+        echo "LAST_TAG: ${{ env.LAST_TAG }}"
+        echo "NEXT_VERSION: ${{ env.NEXT_VERSION }}"
+        
     - name: Build Application
       if: false
       run: |
