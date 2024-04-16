@@ -66,12 +66,12 @@ for COMMIT_ID in $COMMIT_IDS; do
   if git diff --name-only $COMMIT_ID^! | grep -q -E "$APP_PATH|$CORE_PATH"; then
     COMMIT_MSG=$(git log -1 --pretty=format:"%B" $COMMIT_ID)
     # Check for semantic commit types
-    if [[ "$COMMIT_MSG" =~ BREAKING[[:space:]]CHANGE: ]] || [[ "$COMMIT_MSG" =~ ^[a-z]+!: ]]; then
+    if echo "$COMMIT_MSG" | grep -q "BREAKING CHANGE" || echo "$COMMIT_MSG" | grep -qE "\w+\([^)]+\)!:|\w+!:"; then
       MAJOR_INC=1
       break # Major version increment is the highest, stop further analysis
-    elif [[ "$COMMIT_MSG" =~ ^feat: ]]; then
+    elif echo "$COMMIT_MSG" | grep -qE '^(feat)'; then
       MINOR_INC=1
-    elif [[ "$COMMIT_MSG" =~ ^fix: ]]; then
+    elif echo "$COMMIT_MSG" | grep -qE '^(fix)'; then
       PATCH_INC=1
     fi
   fi
