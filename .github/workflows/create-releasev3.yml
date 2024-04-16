@@ -31,13 +31,50 @@ jobs:
             echo "Error: You must select a valid application to release."
             exit 1
           fi
-          
-  build-and-release:
+
+  determine-app-change-version:
     needs: validate-inputs
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      discussions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Important to fetch all history for scripts calculating changes
+
+      - name: Set execute permissions on scripts
+        run: chmod +x ./.github/scripts/assess-changes-app.sh ./.github/scripts/assess-changes-version.sh
+
+      - name: Run assess-changes-app script
+        run: ./.github/scripts/assess-changes-app.sh
+        env:
+          GITHUB_ENV: ${{ env.GITHUB_ENV }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APP_NAME: ${{ github.event.inputs.APP_NAME }}
+  
+      - name: Check if the app has had changes
+        if: ${{ env.APP_AFFECTED != 'true'}}
+        id: app-change-check
+        run: |
+          echo "There are no changes detected to app ${{ inputs.APP_NAME }} since the last release tag."
+          exit 0
+  
+      - name: Run assess-changes-app script
+        run: ./.github/scripts/assess-changes-version.sh
+        env:
+          GITHUB_ENV: ${{ env.GITHUB_ENV }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APP_NAME: ${{ github.event.inputs.APP_NAME }}
+          LAST_TAG: ${{ env.LAST_TAG }}
+  
+      - name: Check there is a new version
+        if: ${{ env.VERSION_CHANGED != 'true' }}
+        id: version-change-check
+        run: |
+          echo "The changes in app ${{ inputs.APP_NAME }} do not meet the criteria for a new release. New releases require at least one feature or fix commit."
+          exit 0
+  
+  build-and-release:
+    needs: determine-app-change-version
+    runs-on: ubuntu-latest
     env:
       APP_PATH: 'src/Test/${{ inputs.APP_NAME }}/'
       CORE_PATH: 'src/Test/Core/'
@@ -48,36 +85,7 @@ jobs:
         fetch-depth: 0 # Important to fetch all history for scripts calculating changes
 
     - name: Set execute permissions on scripts
-      run: chmod +x ./.github/scripts/assess-changes-app.sh ./.github/scripts/assess-changes-version.sh ./.github/scripts/generate-release-notes.sh
-
-    - name: Run assess-changes-app script
-      run: ./.github/scripts/assess-changes-app.sh
-      env:
-        GITHUB_ENV: ${{ env.GITHUB_ENV }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        APP_NAME: ${{ github.event.inputs.APP_NAME }}
-
-    - name: Check if the app has had changes
-      if: ${{ env.APP_AFFECTED != 'true'}}
-      id: app-change-check
-      run: |
-        echo "There are no changes detected to app ${{ inputs.APP_NAME }} since the last release tag."
-        exit 0
-
-    - name: Run assess-changes-app script
-      run: ./.github/scripts/assess-changes-version.sh
-      env:
-        GITHUB_ENV: ${{ env.GITHUB_ENV }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        APP_NAME: ${{ github.event.inputs.APP_NAME }}
-        LAST_TAG: ${{ env.LAST_TAG }}
-
-    - name: Check there is a new version
-      if: ${{ env.VERSION_CHANGED != 'true' }}
-      id: version-change-check
-      run: |
-        echo "The changes in app ${{ inputs.APP_NAME }} do not meet the criteria for a new release. New releases require at least one feature or fix commit."
-        exit 0
+      run: chmod +x ./.github/scripts/generate-release-notes.sh
 
     - name: Build Application
       if: false
