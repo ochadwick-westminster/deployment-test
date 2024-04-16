@@ -59,7 +59,8 @@ jobs:
       run: |
         echo "There are no changes detected to app ${{ inputs.APP_NAME }} since the last release tag."
         exit 0
-    - name: Run assess-changes-app script
+        
+    - name: Run assess-changes-version script
       run: ./.github/scripts/assess-changes-version.sh
       env:
         GITHUB_ENV: ${{ env.GITHUB_ENV }}
