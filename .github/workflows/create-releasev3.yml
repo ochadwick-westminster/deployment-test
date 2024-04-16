@@ -61,8 +61,8 @@ jobs:
       if: ${{ env.APP_AFFECTED != 'true'}}
       id: app-change-check
       run: |
-        echo "Error: There are no changes detected to app ${{ inputs.APP_NAME }} since the last release tag."
-        exit 1
+        echo "There are no changes detected to app ${{ inputs.APP_NAME }} since the last release tag."
+        exit 0
 
     - name: Run assess-changes-app script
       run: ./.github/scripts/assess-changes-version.sh
@@ -70,14 +70,14 @@ jobs:
         GITHUB_ENV: ${{ env.GITHUB_ENV }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         APP_NAME: ${{ github.event.inputs.APP_NAME }}
-        LAST_TAG: $LAST_TAG
+        LAST_TAG: ${{ env.$LAST_TAG }}
 
     - name: Check there is a new version
       if: ${{ env.VERSION_CHANGED != 'true' }}
       id: version-change-check
       run: |
-        echo "Error: The changes in app ${{ inputs.APP_NAME }} do not meet the criteria for a new release. New releases require at least one feature or fix commit."
-        exit 1
+        echo "The changes in app ${{ inputs.APP_NAME }} do not meet the criteria for a new release. New releases require at least one feature or fix commit."
+        exit 0
 
     - name: Build Application
       if: false
