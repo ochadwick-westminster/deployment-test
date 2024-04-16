@@ -102,7 +102,7 @@ jobs:
         run: zip -r ${{ needs.assess-app-version-change.outputs.next_version }}.zip publish/
     
   generate-release:
-    needs: build-and-test
+    needs: [assess-app-version-change, build-and-test]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -115,7 +115,9 @@ jobs:
     - name: Get previous job outputs
       run: |
         echo "LAST_TAG=${{ needs.assess-app-version-change.outputs.last_tag }}" >> $GITHUB_ENV
+        echo "Last tag: $LAST_TAG"
         echo "NEXT_VERSION=${{ needs.assess-app-version-change.outputs.next_version }}" >> $GITHUB_ENV
+        echo "Next version: $NEXT_VERSION"
         
     - name: Get commits & authors since last tag for the application
       id: get-commits
