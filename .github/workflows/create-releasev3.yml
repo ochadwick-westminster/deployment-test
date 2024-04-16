@@ -20,6 +20,8 @@ on:
 env:
   APP_PATH: 'src/Test/${{ inputs.APP_NAME }}/'
   CORE_PATH: 'src/Test/Core/'
+  LAST_TAG: ''
+  NEXT_VERSION: ''
   
 jobs:
   validate-inputs:
@@ -111,8 +113,8 @@ jobs:
       run: |
         echo $LAST_TAG
 
-        commits=$(git log $LAST_TAG..HEAD --no-merges --pretty=format:"%h %s" -- $APP_PATH $CORE_PATH | base64 -w 0)
-        authors=$(git log $LAST_TAG..HEAD --no-merges --pretty=format:"%an" -- $APP_PATH $CORE_PATH | sort | uniq | base64 -w 0)
+        commits=$(git log ${{ env.LAST_TAG }}..HEAD --no-merges --pretty=format:"%h %s" -- $APP_PATH $CORE_PATH | base64 -w 0)
+        authors=$(git log ${{ env.LAST_TAG }}..HEAD --no-merges --pretty=format:"%an" -- $APP_PATH $CORE_PATH | sort | uniq | base64 -w 0)
 
         # Use GITHUB_OUTPUT to set the output variable
         echo "commits=$commits" >> $GITHUB_OUTPUT
