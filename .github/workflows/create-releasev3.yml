@@ -48,14 +48,36 @@ jobs:
         fetch-depth: 0 # Important to fetch all history for scripts calculating changes
 
     - name: Set execute permissions on scripts
-      run: chmod +x ./.github/scripts/assess-changes.sh ./.github/scripts/generate-release-notes.sh ./.github/scripts/generate-release-notes2.sh
+      run: chmod +x ./.github/scripts/assess-changes-app.sh ./.github/scripts/assess-changes-version.sh ./.github/scripts/generate-release-notes.sh
 
-    - name: Run assess-changes script
+    - name: Run assess-changes-app script
       run: ./.github/scripts/assess-changes.sh
       env:
         GITHUB_ENV: ${{ env.GITHUB_ENV }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         APP_NAME: ${{ github.event.inputs.APP_NAME }}
+
+    - name: Check if the app has had changes
+      if: ${{ env.APP_AFFECTED != 'true'}}
+      id: app-change-check
+      run: |
+        echo "Error: There are no changes detected to app ${{ inputs.APP_NAME }} since the last release tag."
+        exit 1
+
+    - name: Run assess-changes-app script
+      run: ./.github/scripts/assess-changes.sh
+      env:
+        GITHUB_ENV: ${{ env.GITHUB_ENV }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        APP_NAME: ${{ github.event.inputs.APP_NAME }}
+        LAST_TAG: $LAST_TAG
+
+    - name: Check there is a new version
+      if: ${{ env.VERSION_CHANGED != 'true' }}
+      id: version-change-check
+      run: |
+        echo "Error: The changes in app ${{ inputs.APP_NAME }} do not meet the criteria for a new release. New releases require at least one feature or fix commit."
+        exit 1
 
     - name: Build Application
       if: false
