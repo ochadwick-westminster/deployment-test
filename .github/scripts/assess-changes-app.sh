@@ -5,6 +5,8 @@ app_name="$APP_NAME"
 
 # Fetch tags to ensure we have the latest tag information
 git fetch --tags
+
+LAST_TAG=$(git tag --list | grep -i '^${app_name}' | sort --version-sort --reverse | head -n 1)
 if [ -z "$LAST_TAG" ]; then
   LAST_TAG=$(git rev-list --max-parents=0 HEAD)
   echo "No version tag found, using initial commit as LAST_TAG."
