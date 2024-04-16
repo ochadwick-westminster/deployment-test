@@ -102,7 +102,7 @@ jobs:
         run: zip -r ${{ needs.assess-app-version-change.outputs.next_version }}.zip publish/
     
   generate-release:
-    needs: [assess-app-version-change, build-and-test]
+    needs: build-and-test
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
