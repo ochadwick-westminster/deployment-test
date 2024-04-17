@@ -35,7 +35,7 @@ for COMMIT_ID in $COMMIT_IDS; do
       break # Major version increment is the highest, stop further analysis
     elif echo "$COMMIT_MSG" | grep -qE '^(feat)'; then
       MINOR_INC=1
-    elif echo "$COMMIT_MSG" | grep -qE '^(fix)'; then
+    elif echo "$COMMIT_MSG" | grep -qE '^(fix|style|refactor|perf|build|ci|revert)'; then
       PATCH_INC=1
     fi
   fi
