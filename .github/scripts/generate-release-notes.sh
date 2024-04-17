@@ -11,8 +11,14 @@ authors=$(echo "$encoded_authors" | base64 --decode)
 echo "Generating release notes..."
 TODAYS_DATE=$(date +%Y-%m-%d) # Gets the current date in the format YYYY-MM-DD
 RELEASE_NOTES="## $NEXT_VERSION ($TODAYS_DATE)"
-FIXES=""
 FEATURES=""
+FIXES=""
+STYLES=""
+REFACTORS=""
+PERFS=""
+BUILDS=""
+CIS=""
+REVERTS=""
 CONTRIBUTORS=""
 
 # Enable case-insensitive matching
@@ -79,6 +85,18 @@ while IFS= read -r commit; do
     FEATURES+="- $formatted_message\n"
   elif [[ "$commit_title" =~ ^fix ]]; then
     FIXES+="- $formatted_message\n"
+  elif [[ "$commit_title" =~ ^style ]]; then
+    STYLES+="- $formatted_message\n"
+  elif [[ "$commit_title" =~ ^refactor ]]; then
+    REFACTORS+="- $formatted_message\n"
+  elif [[ "$commit_title" =~ ^perf ]]; then
+    PERFS+="- $formatted_message\n"
+  elif [[ "$commit_title" =~ ^build ]]; then
+    BUILDS+="- $formatted_message\n"
+  elif [[ "$commit_title" =~ ^ci ]]; then
+    CIS+="- $formatted_message\n"
+  elif [[ "$commit_title" =~ ^revert ]]; then
+    REVERTS+="- $formatted_message\n"
   fi
 done < <(echo "$commits" | sed '/^$/d')
 
@@ -90,10 +108,28 @@ while IFS= read -r author; do
 done < <(echo "$authors" | sed '/^$/d')
 
 if [[ $FEATURES ]]; then
-  RELEASE_NOTES+="\n\n### :rocket: Features\n$FEATURES"
+  RELEASE_NOTES+="\n\n### :sparkles: Features\n$FEATURES"
 fi
 if [[ $FIXES ]]; then
-  RELEASE_NOTES+="\n\n### :adhesive_bandage: Fixes\n$FIXES"
+  RELEASE_NOTES+="\n\n### :bug: Bug Fixes\n$FIXES"
+fi
+if [[ $STYLES ]]; then
+  RELEASE_NOTES+="\n\n### :gem: Styles\n$STYLES"
+fi
+if [[ $REFACTORS ]]; then
+  RELEASE_NOTES+="\n\n### :hammer: Code Refactoring\n$REFACTORS"
+fi
+if [[ $PERFS ]]; then
+  RELEASE_NOTES+="\n\n### :rocket: Performance Improvements\n$PERFS"
+fi
+if [[ $BUILDS ]]; then
+  RELEASE_NOTES+="\n\n### :package: Builds\n$BUILDS"
+fi
+if [[ $CIS ]]; then
+  RELEASE_NOTES+="\n\n### :construction_worker: Continuous Integrations\n$CIS"
+fi
+if [[ $REVERTS ]]; then
+  RELEASE_NOTES+="\n\n### :wastebasket: Reverts\n$REVERTS"
 fi
 if [[ $CONTRIBUTORS ]]; then
   RELEASE_NOTES+="\n\n### :heart: Thank You\n$CONTRIBUTORS"
