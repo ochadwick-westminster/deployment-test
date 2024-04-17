@@ -18,7 +18,7 @@ public static class Math
     {
         return x * y;
     }
-    //some comments
+    //some comdments
     public static int divide(int x, int y)
     {
         return x / y;
