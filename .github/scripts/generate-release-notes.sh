@@ -51,7 +51,7 @@ while IFS= read -r commit; do
 
   # Formatting commit message
   # Regular expression to check for a valid type at the start of the commit message
-  if echo "$commit_title" | grep -qE '^(feat|fix)'; then
+  if echo "$commit_title" | grep -qE '^(feat|fix|style|refactor|perf|build|ci|revert)'; then
       if echo "$commit_title" | grep -qE "):"; then
           # Commit with scope
           scope=$(echo "$commit_title" | awk -F'[:()]' '{print $2}')
