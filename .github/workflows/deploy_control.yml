@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - src/test/**
+      - src/Test/**
 
 jobs:
   find-and-deploy-changed-apps:
