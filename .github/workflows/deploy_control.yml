@@ -1,0 +1,45 @@
+name: Determine and Deploy Changed Applications
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/test/**'
+
+jobs:
+  find-and-deploy-changed-apps:
+    runs-on: ubuntu-latest
+    outputs:
+      changed-apps: ${{ steps.set-output.outputs.changed-apps }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 2  # Fetches the commit history to compare changes
+
+    - name: Find changed applications
+      id: set-output
+      run: |
+        # List changes comparing HEAD with the previous commit
+        CHANGES=$(git diff --name-only HEAD^ HEAD | grep '^src/test/' | awk -F'/' '{print $3}' | sort -u)
+        echo "Changed applications: $CHANGES"
+        
+        # Set the output variable to the list of changed apps
+        echo "CHANGED_APPS=$CHANGES" >> $GITHUB_ENV
+
+    - name: Deploy AppA
+      if: contains(env.CHANGED_APPS, 'AppA')
+      run: |
+        echo "Deploying changed applications..."
+        for app in ${{ steps.set-output.outputs.changed-apps }}
+        do
+          echo "Checking deployment for $app"
+          # Replace 'app-name' with your actual app name or condition
+          if [[ "$app" == "app-name" ]]; then
+            echo "Deploying $app..."
+            # Your deployment command or script here
+            # For example: ./deploy.sh $app
+          fi
+        done
