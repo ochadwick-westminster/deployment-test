@@ -1,0 +1,43 @@
+name: Deploy to Azure
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/test/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: Development
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0'
+
+      - name: Install dependencies
+        run: dotnet restore ./src/Test/AppA/Test.Api.AppA
+      
+      - name: Build
+        run: dotnet build --configuration Release ./src/Test/AppA/Test.Api.AppA --no-restore
+      
+      - name: Configure app settings
+        run: echo '${{ secrets.APPA_APPSETTINGS }}' > ./src/Test/AppA/Test.Api.AppA/appsettings.json
+      
+      - name: Publish
+        run: dotnet publish ./src/Test/AppA/Test.Api.AppA -c Release -o ./publish --no-build
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      
+      - name: Deploy to Azure
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: report-it-backend-test
+          publish-profile: ${{ secrets.APPA_PUBLISH_PROFILE }}
+          package: ./publish
