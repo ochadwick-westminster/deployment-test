@@ -30,16 +30,11 @@ jobs:
         echo "CHANGED_APPS=$CHANGES" >> $GITHUB_ENV
 
     - name: Deploy AppA
-      if: contains(env.CHANGED_APPS, 'AppA')
+      if: contains(env.CHANGED_APPS, 'AppA') || contains(env.CHANGED_APPS, 'Core')
       run: |
-        echo "Deploying changed applications..."
-        for app in ${{ steps.set-output.outputs.changed-apps }}
-        do
-          echo "Checking deployment for $app"
-          # Replace 'app-name' with your actual app name or condition
-          if [[ "$app" == "app-name" ]]; then
-            echo "Deploying $app..."
-            # Your deployment command or script here
-            # For example: ./deploy.sh $app
-          fi
-        done
+        echo "Deploying AppA"
+
+    - name: Deploy AppB
+      if: contains(env.CHANGED_APPS, 'AppB') || contains(env.CHANGED_APPS, 'Core')
+      run: |
+        echo "Deploying AppB"
