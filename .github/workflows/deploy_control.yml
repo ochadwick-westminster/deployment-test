@@ -23,7 +23,7 @@ jobs:
       id: set-output
       run: |
         # List changes comparing HEAD with the previous commit
-        CHANGES=$(git diff --name-only HEAD^ HEAD | grep '^src/test/' | awk -F'/' '{print $3}' | sort -u)
+        CHANGES=$(git diff --name-only HEAD^ HEAD | grep '^src/Test/' | awk -F'/' '{print $3}' | sort -u)
         echo "Changed applications: $CHANGES"
         
         # Set the output variable to the list of changed apps
